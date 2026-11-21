@@ -1,0 +1,171 @@
+﻿@* Components/Sections/HeroSection.razor *@
+
+<section id="hero" class="w-full py-12 lg:py-20 px-4 sm:px-6 lg:px-8 bg-[#0b0f17]">
+    <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-12 items-center">
+        
+        <!-- VÄNSTER: INTRO & BIO -->
+        <div class="flex flex-col space-y-6">
+            
+            <!-- Monospace status label -->
+            <div class="text-xs font-mono tracking-widest text-amber-500 uppercase">
+                HELLO, WORLD_
+            </div>
+
+            <!-- Namn -->
+            <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-white font-mono">
+                Rami Issa
+            </h1>
+
+            <!-- Student Badge -->
+            <div>
+                <span class="inline-flex items-center gap-2 px-3 py-1 rounded border border-amber-500/40 bg-amber-500/10 text-amber-400 font-mono text-xs">
+                    <svg class="w-3.5 h-3.5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                    </svg>
+                    <span>DevSecOps-student @@ KYH</span>
+                </span>
+            </div>
+
+            <!-- Bio -->
+            <p class="text-slate-300 text-sm sm:text-base leading-relaxed max-w-xl font-sans">
+                Fokuserad på säkra system, automation och ständigt lärande. Bygger mina färdigheter inom DevSecOps, C# .NET och modern molninfrastruktur med fokus på säker, stabil och effektiv kod.
+            </p>
+
+            <!-- Knappar -->
+            <div class="flex flex-wrap items-center gap-4 pt-2">
+                <a href="#labbar"
+                   class="px-5 py-2.5 rounded bg-amber-500 text-slate-950 font-mono text-xs sm:text-sm font-semibold hover:bg-amber-400 transition-colors flex items-center gap-2 shadow-lg shadow-amber-500/10">
+                    <span>Utforska Labbet</span>
+                    <span>&rarr;</span>
+                </a>
+                <a href="#kontakt"
+                   class="px-5 py-2.5 rounded border border-slate-700 bg-[#0e131f] text-slate-200 font-mono text-xs sm:text-sm font-medium hover:border-amber-500/50 hover:text-amber-400 transition-colors">
+                    Ta Kontakt
+                </a>
+            </div>
+
+            <!-- Teknik-taggar -->
+            <div class="flex flex-wrap items-center gap-3 pt-4 text-xs font-mono text-slate-400">
+                <span class="flex items-center gap-1.5"><span class="text-amber-500">&gt;_</span> Linux</span>
+                <span class="flex items-center gap-1.5"><span class="text-amber-500">&#9881;</span> Docker</span>
+                <span class="flex items-center gap-1.5"><span class="text-amber-500">&#128737;</span> Security</span>
+                <span class="flex items-center gap-1.5"><span class="text-amber-500">&#9729;</span> Cloud & IaC</span>
+            </div>
+
+            <!-- Tagline -->
+            <div class="text-[11px] font-mono tracking-widest text-amber-500/80 uppercase">
+                BETTER INFRASTRUCTURE. SAFER TOMORROW.
+            </div>
+
+        </div>
+
+        <!-- HÖGER: TERMINALFÖNSTER (Komplett ram med PC/Linux-topplist) -->
+        <div class="w-full rounded-xl overflow-hidden border border-amber-500/40 bg-[#0c0f17] shadow-[0_0_35px_rgba(245,158,11,0.06)]">
+            
+            <!-- Topplist (Window bar - PC / Linux / ParrotOS-stil) -->
+            <div class="px-4 py-2 border-b border-amber-500/20 bg-[#111622] flex items-center justify-between text-xs font-mono select-none">
+                
+                <!-- Vänster: Terminal-ikon och titel / prompt-flik -->
+                <div class="flex items-center gap-2 text-slate-200 font-semibold tracking-wide">
+                    <span class="text-amber-500 font-bold">&gt;_</span>
+                    <span>ramii@@devbox:~</span>
+                    <span class="text-slate-600 ml-1 text-[11px] hidden sm:inline">(bash)</span>
+                </div>
+
+                <!-- Höger: Sök + Minimera, Maximera, Stäng -->
+                <div class="flex items-center gap-3 text-slate-400">
+                    <button type="button" class="hover:text-amber-400 transition-colors p-1" title="Sök">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                    </button>
+                    <button type="button" class="hover:text-amber-400 transition-colors p-1" title="Minimera">
+                        <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M5 12h14v2H5z" />
+                        </svg>
+                    </button>
+                    <button type="button" class="hover:text-amber-400 transition-colors p-1" title="Maximera">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <rect x="5" y="5" width="14" height="14" rx="1" stroke-width="2" />
+                        </svg>
+                    </button>
+                    <button type="button" class="hover:text-red-400 transition-colors p-1" title="Stäng">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+
+            </div>
+
+            <!-- Terminalens kropp -->
+            <div class="p-5 font-mono text-xs sm:text-[13px] leading-relaxed text-slate-200 space-y-4 select-text">
+                
+                <!-- whoami -->
+                <div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-amber-500 font-semibold">ramii@@devbox:~$</span>
+                        <span class="text-white">whoami</span>
+                    </div>
+                    <div class="text-amber-400 pl-4 mt-0.5">
+                        rami
+                    </div>
+                </div>
+
+                <!-- docker ps -->
+                <div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-amber-500 font-semibold">ramii@@devbox:~$</span>
+                        <span class="text-white">docker ps</span>
+                    </div>
+
+                    <!-- Tabell som matchar skissen utan scrollbar -->
+                    <div class="mt-2 text-xs space-y-3 font-mono">
+                        <div class="text-slate-400 text-[11px] tracking-wider uppercase border-b border-slate-800 pb-1 flex justify-between">
+                            <span>CONTAINER ID / IMAGE</span>
+                            <span>STATUS / PORTS</span>
+                            <span>NAME</span>
+                        </div>
+
+                        <!-- Container 1 -->
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-slate-300">
+                            <div>
+                                <span class="text-slate-500 font-mono">6f3a2c9e8d1a</span>
+                                <span class="text-slate-200 ml-2">blazor-web:latest</span>
+                            </div>
+                            <div class="text-slate-400 text-[11px]">
+                                Up 2 hours &bull; 8080-&gt;80/tcp
+                            </div>
+                            <div class="text-amber-400 font-semibold">
+                                blazor-web
+                            </div>
+                        </div>
+
+                        <!-- Container 2 -->
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-slate-300">
+                            <div>
+                                <span class="text-slate-500 font-mono">a1b4e7d3c9f2</span>
+                                <span class="text-slate-200 ml-2">mssql-db:latest</span>
+                            </div>
+                            <div class="text-slate-400 text-[11px]">
+                                Up 2 hours &bull; 1433-&gt;1433/tcp
+                            </div>
+                            <div class="text-amber-400 font-semibold">
+                                mssql-db
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Prompt i väntan på kommando med blinkande markör -->
+                <div class="flex items-center gap-2 pt-1">
+                    <span class="text-amber-500 font-semibold">ramii@@devbox:~$</span>
+                    <span class="inline-block w-2.5 h-4 bg-amber-400 animate-pulse"></span>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+</section>

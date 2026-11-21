@@ -1,0 +1,13 @@
+@import "tailwindcss";
+@plugin "daisyui";
+
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap');
+
+@theme {
+    --font-mono: 'Space Mono', monospace;
+    --font-sans: 'Space Mono', monospace;
+}
+
+body, h1, h2, h3, h4, h5, h6, p, span, a, code, pre {
+    font-family: 'Space Mono', monospace !important;
+}

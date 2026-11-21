@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="ramii.dev.Core/ramii.dev.Core.csproj" Id="9f5ddd75-cdc4-4537-9f61-64e8f782f117" />
+  <Project Path="ramii.dev.Data/ramii.dev.Data.csproj" Id="ac23ef5d-2df7-4288-afe0-de603d5fb97d" />
+  <Project Path="ramii.dev/ramii.dev.csproj" />
+</Solution>

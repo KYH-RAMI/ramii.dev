@@ -1,0 +1,115 @@
+﻿@* Components/Sections/ContactSection.razor *@
+
+<section id="kontakt" class="w-full py-16 lg:py-24 px-4 sm:px-6 lg:px-8 bg-[#090c13] border-t border-slate-900">
+    <div class="max-w-7xl mx-auto space-y-12">
+        
+        <!-- Sektionsrubrik -->
+        <div>
+            <span class="text-xs font-mono tracking-widest text-amber-500 font-semibold uppercase">
+                // KONTAKT
+            </span>
+            <h2 class="text-3xl sm:text-4xl font-bold tracking-tight text-white font-mono mt-1">
+                Initiera kontakt
+            </h2>
+            <p class="text-xs sm:text-sm text-slate-400 font-mono max-w-xl mt-2">
+                Skicka ett meddelande via formuläret. Direkt och säkert utan öppna e-postadresser.
+            </p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 font-mono">
+            
+            <!-- Vänster: Status och profiler -->
+            <div class="space-y-6 text-xs">
+                
+                <!-- Statusbox -->
+                <div class="p-5 rounded-xl border border-amber-500/30 bg-[#0c0f17] shadow-lg shadow-black/40">
+                    <div class="text-amber-400 font-semibold mb-2 flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                        <span>[ STATUS: AKTIV ]</span>
+                    </div>
+                    <p class="text-slate-300 leading-relaxed font-sans text-xs">
+                        Öppen för nätverkande, DevSecOps-diskussioner och framtida LIA/praktik.
+                    </p>
+                </div>
+
+                <!-- Direktlänkar -->
+                <div class="p-5 rounded-xl border border-slate-800 bg-[#0c0f17] space-y-3">
+                    <div class="text-slate-500 text-[11px] uppercase tracking-wider font-semibold">
+                        [ VERIFIERADE PROFILER ]
+                    </div>
+                    <div>
+                        <a href="https://github.com/KYH-RAMI" target="_blank" rel="noopener noreferrer"
+                           class="text-slate-300 hover:text-amber-400 transition-colors flex items-center gap-2">
+                            <span class="text-amber-500">&gt;</span> github.com/KYH-RAMI
+                        </a>
+                    </div>
+                    <div>
+                        <a href="https://www.linkedin.com/in/rami-issa-b239623ab/" target="_blank" rel="noopener noreferrer"
+                           class="text-slate-300 hover:text-amber-400 transition-colors flex items-center gap-2">
+                            <span class="text-amber-500">&gt;</span> linkedin.com/in/rami-issa
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Notis om säkerhet -->
+                <div class="text-[11px] text-slate-500 leading-relaxed font-sans pl-1">
+                    🔒 Meddelanden lagras säkert i intern databas och skickas aldrig öppet över oskyddade kanaler.
+                </div>
+
+            </div>
+
+            <!-- Höger: Kontaktformulär -->
+            <div class="lg:col-span-2 p-6 sm:p-8 rounded-xl border border-amber-500/30 bg-[#0c0f17] shadow-xl shadow-black/50">
+                <form class="space-y-5 text-xs">
+                    
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-slate-300 mb-1.5 font-semibold">
+                                <span class="text-amber-500">//</span> Namn
+                            </label>
+                            <input type="text" placeholder="Ditt namn eller företag"
+                                   class="w-full bg-[#111622] border border-slate-800 rounded px-3.5 py-2.5 text-slate-200 placeholder-slate-600 focus:outline-none focus:border-amber-500 transition-colors" />
+                        </div>
+                        <div>
+                            <label class="block text-slate-300 mb-1.5 font-semibold">
+                                <span class="text-amber-500">//</span> E-post
+                            </label>
+                            <input type="email" placeholder="din@@epost.se"
+                                   class="w-full bg-[#111622] border border-slate-800 rounded px-3.5 py-2.5 text-slate-200 placeholder-slate-600 focus:outline-none focus:border-amber-500 transition-colors" />
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-slate-300 mb-1.5 font-semibold">
+                            <span class="text-amber-500">//</span> Ämne
+                        </label>
+                        <input type="text" placeholder="DevSecOps / Samarbete / Allmänt"
+                               class="w-full bg-[#111622] border border-slate-800 rounded px-3.5 py-2.5 text-slate-200 placeholder-slate-600 focus:outline-none focus:border-amber-500 transition-colors" />
+                    </div>
+
+                    <div>
+                        <label class="block text-slate-300 mb-1.5 font-semibold">
+                            <span class="text-amber-500">//</span> Meddelande
+                        </label>
+                        <textarea rows="4" placeholder="Skriv ditt meddelande här..."
+                                  class="w-full bg-[#111622] border border-slate-800 rounded px-3.5 py-2.5 text-slate-200 placeholder-slate-600 focus:outline-none focus:border-amber-500 transition-colors"></textarea>
+                    </div>
+
+                    <div class="pt-2 flex items-center justify-between">
+                        <button type="button"
+                                class="px-6 py-2.5 rounded bg-amber-500 text-slate-950 font-bold hover:bg-amber-400 transition-colors flex items-center gap-2 shadow-lg shadow-amber-500/10">
+                            <span>Skicka meddelande</span>
+                            <span>&rarr;</span>
+                        </button>
+                        <span class="text-[11px] text-slate-500 font-mono hidden sm:inline">
+                            POST /api/contact [TLS 1.3]
+                        </span>
+                    </div>
+
+                </form>
+            </div>
+
+        </div>
+
+    </div>
+</section>
