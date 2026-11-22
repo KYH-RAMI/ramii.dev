@@ -12,6 +12,7 @@ public class AppDbContext : DbContext
     public DbSet<ContactThread> Threads => Set<ContactThread>();
     public DbSet<ThreadMessage> Messages => Set<ThreadMessage>();
 
+    public DbSet<LabProject> LabProjects => Set<LabProject>();
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -41,6 +42,21 @@ public class AppDbContext : DbContext
             entity.Property(e => e.UserAgent).HasMaxLength(500);
 
             entity.HasIndex(e => e.SentAt);
+        });
+
+        // Konfiguration för LabProject
+        modelBuilder.Entity<LabProject>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Title).HasMaxLength(150).IsRequired();
+            entity.Property(e => e.Category).HasMaxLength(80).IsRequired();
+            entity.Property(e => e.Description).HasMaxLength(1000).IsRequired();
+            entity.Property(e => e.TechTags).HasMaxLength(200).IsRequired();
+            entity.Property(e => e.GitHubUrl).HasMaxLength(300);
+            entity.Property(e => e.DemoUrl).HasMaxLength(300);
+
+            entity.HasIndex(e => e.IsPublished);
+            entity.HasIndex(e => e.SortOrder);
         });
     }
 }
