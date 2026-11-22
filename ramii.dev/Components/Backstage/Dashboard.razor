@@ -1,0 +1,198 @@
+﻿@page "/backstage"
+@attribute [Microsoft.AspNetCore.Authorization.Authorize]
+
+@layout BackstageLayout
+@rendermode InteractiveServer
+@using ramii.dev.Core.Entities
+@using ramii.dev.Core.Interfaces
+@inject IContactService ContactService
+
+<div class="max-w-6xl mx-auto space-y-6">
+    <!-- Toppbanner -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-amber-500/20">
+        <div>
+            <h1 class="text-2xl font-bold text-slate-100 flex items-center gap-2">
+                <span class="text-amber-500">></span> INKORG // KONTAKTÄRENDEN
+            </h1>
+            <p class="text-xs text-slate-400 mt-1">Hantera inkomna meddelanden från portfoliosajten</p>
+        </div>
+        <div class="flex items-center gap-3">
+            <button @onclick="LoadThreads" class="px-2.5 py-1 text-xs bg-white/5 hover:bg-amber-500/10 text-slate-300 hover:text-amber-400 border border-amber-500/20 rounded transition">
+                ↻ Uppdatera
+            </button>
+            <div class="text-xs text-slate-400 bg-[#0d121d] border border-amber-500/20 px-3 py-1.5 rounded flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                <span>Databas: RamiiDevDb (Online)</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Huvudyta med två kolumner -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Vänsterkolumn: Lista över trådar -->
+        <div class="bg-[#0b0f19] border border-amber-500/20 rounded-lg p-4 space-y-3">
+            <div class="flex items-center justify-between text-xs text-slate-400 pb-2 border-b border-white/5">
+                <span>Alla meddelanden (@threads.Count)</span>
+                <span class="text-amber-500">Filter: Alla</span>
+            </div>
+
+            @if (isLoading)
+            {
+                <div class="py-12 text-center text-slate-500 text-xs">
+                    <p class="animate-pulse">> Hämtar från MSSQL...</p>
+                </div>
+            }
+            else if (!threads.Any())
+            {
+                <div class="py-12 text-center text-slate-500 text-xs">
+                    <p>> Inga meddelanden ännu</p>
+                    <p class="text-slate-600 mt-1">När någon fyller i formuläret dyker de upp här.</p>
+                </div>
+            }
+            else
+            {
+                <div class="space-y-2 max-h-[600px] overflow-y-auto pr-1">
+                    @foreach (var thread in threads)
+                    {
+                        var isSelected = selectedThread?.Id == thread.Id;
+                        <div @onclick="() => SelectThread(thread)"
+                             class="p-3 rounded border text-left cursor-pointer transition @(isSelected ? "bg-amber-500/15 border-amber-500/60 text-slate-100" : "bg-[#0e1320] border-amber-500/10 hover:border-amber-500/30 text-slate-300")">
+                            <div class="flex items-center justify-between text-[11px] text-slate-400 mb-1">
+                                <span class="font-bold text-amber-400 truncate max-w-[140px]">@thread.VisitorName</span>
+                                <span class="text-[10px] text-slate-500">@thread.LastActivityAt.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</span>
+                            </div>
+                            <div class="text-xs font-semibold truncate text-slate-200 mb-1">
+                                @thread.Subject
+                            </div>
+                            <div class="flex items-center justify-between text-[10px]">
+                                <span class="text-slate-500 truncate max-w-[140px]">@thread.VisitorEmail</span>
+                                <span class="px-1.5 py-0.5 rounded @GetStatusBadge(thread.Status)">
+                                    @thread.Status
+                                </span>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+
+        <!-- Högerkolumn: Detaljvy för valt meddelande -->
+        <div class="lg:col-span-2 bg-[#0b0f19] border border-amber-500/20 rounded-lg p-6 flex flex-col min-h-[500px]">
+            @if (selectedThread == null)
+            {
+                <div class="flex-1 flex flex-col items-center justify-center text-slate-600 text-xs space-y-2">
+                    <span class="text-amber-500/40 text-2xl">[ >_ ]</span>
+                    <span>Välj ett ärende till vänster för att läsa och svara</span>
+                </div>
+            }
+            else
+            {
+                <!-- Trådhuvud -->
+                <div class="border-b border-amber-500/20 pb-4 mb-4">
+                    <div class="flex items-center justify-between gap-2">
+                        <h2 class="text-lg font-bold text-slate-100">@selectedThread.Subject</h2>
+                        <span class="text-xs px-2 py-0.5 rounded @GetStatusBadge(selectedThread.Status)">
+                            @selectedThread.Status
+                        </span>
+                    </div>
+                    <div class="text-xs text-slate-400 mt-1 flex flex-wrap items-center gap-x-4 gap-y-1">
+                        <span>Från: <strong class="text-amber-400">@selectedThread.VisitorName</strong> &lt;@selectedThread.VisitorEmail&gt;</span>
+                        <span>Mottaget: @selectedThread.CreatedAt.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</span>
+                    </div>
+                </div>
+
+                <!-- Meddelandehistorik -->
+                <div class="flex-1 space-y-4 overflow-y-auto max-h-[350px] pr-2 mb-4">
+                    @foreach (var msg in selectedThread.Messages.OrderBy(m => m.SentAt))
+                    {
+                        <div class="p-3 rounded border text-xs @(msg.IsFromAdmin ? "bg-amber-500/10 border-amber-500/30 ml-6" : "bg-[#0e1320] border-white/5 mr-6")">
+                            <div class="flex items-center justify-between text-[11px] mb-1.5">
+                                <span class="font-bold @(msg.IsFromAdmin ? "text-amber-400" : "text-emerald-400")">
+                                    @(msg.IsFromAdmin ? ">_ Rami Issa (Admin)" : selectedThread.VisitorName)
+                                </span>
+                                <span class="text-[10px] text-slate-500">@msg.SentAt.ToLocalTime().ToString("HH:mm:ss")</span>
+                            </div>
+                            <p class="text-slate-200 whitespace-pre-wrap leading-relaxed">@msg.Body</p>
+                        </div>
+                    }
+                </div>
+
+                <!-- Svarsruta -->
+                <div class="pt-4 border-t border-amber-500/20 space-y-2">
+                    <label class="block text-xs text-slate-400">>_ Skriv svar till @selectedThread.VisitorName:</label>
+                    <textarea @bind="replyText" rows="3"
+                              class="w-full bg-[#080b12] border border-amber-500/30 rounded p-3 text-xs text-slate-100 focus:outline-none focus:border-amber-500 transition"
+                              placeholder="Skriv ditt svar här..."></textarea>
+                    
+                    <div class="flex items-center justify-between">
+                        <span class="text-[10px] text-slate-500">Svaret loggas i tråden</span>
+                        <button @onclick="SendReply" disabled="@(string.IsNullOrWhiteSpace(replyText) || isReplying)"
+                                class="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs rounded transition disabled:opacity-50">
+                            @(isReplying ? "Sparar..." : "[ Svara på ärende ]")
+                        </button>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    private List<ContactThread> threads = new();
+    private ContactThread? selectedThread;
+    private string replyText = string.Empty;
+    private bool isLoading = true;
+    private bool isReplying = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadThreads();
+    }
+
+    private async Task LoadThreads()
+    {
+        isLoading = true;
+        try
+        {
+            threads = await ContactService.GetAllThreadsAsync();
+            if (selectedThread != null)
+            {
+                selectedThread = threads.FirstOrDefault(t => t.Id == selectedThread.Id);
+            }
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void SelectThread(ContactThread thread)
+    {
+        selectedThread = thread;
+    }
+
+    private async Task SendReply()
+    {
+        if (selectedThread == null || string.IsNullOrWhiteSpace(replyText)) return;
+
+        isReplying = true;
+        try
+        {
+            await ContactService.AddReplyAsync(selectedThread.Id, replyText, isFromAdmin: true);
+            replyText = string.Empty;
+            await LoadThreads();
+        }
+        finally
+        {
+            isReplying = false;
+        }
+    }
+
+    private string GetStatusBadge(ThreadStatus status) => status switch
+    {
+        ThreadStatus.New => "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30",
+        ThreadStatus.Replied => "bg-amber-500/20 text-amber-300 border border-amber-500/30",
+        ThreadStatus.Closed => "bg-slate-700/40 text-slate-400 border border-slate-600/30",
+        _ => "bg-slate-800 text-slate-300"
+    };
+}

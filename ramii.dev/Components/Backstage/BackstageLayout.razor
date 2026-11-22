@@ -1,0 +1,111 @@
+﻿@inherits LayoutComponentBase
+@using ramii.dev.Core.Interfaces
+@using ramii.dev.Core.Entities
+@inject IContactService ContactService
+
+<div class="min-h-screen bg-[#07090e] text-slate-100 font-mono flex flex-col md:flex-row">
+    <!-- Vänstermeny / Sidebar -->
+    <aside class="w-full md:w-64 bg-[#0a0e17] border-b md:border-b-0 md:border-r border-amber-500/20 flex flex-col p-4 shrink-0">
+        <!-- Logo & Status -->
+        <div class="pb-6 border-b border-amber-500/10">
+            <div class="text-amber-500 font-bold text-lg tracking-wider flex items-center gap-2">
+                <span>[>_ ramii.dev]</span>
+            </div>
+            <div class="flex items-center gap-2 mt-2 text-xs text-slate-400">
+                <span class="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span>backstage // admin</span>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <nav class="mt-6 flex flex-col gap-1.5 flex-1">
+            <!-- Ärenden / Inbox med Alert-logik på en snygg rad -->
+            <a href="/backstage"
+               class="flex items-center justify-between px-3 py-2 rounded text-xs transition @(unreadCount > 0
+                    ? "bg-red-950/40 text-red-400 border border-red-500/60 shadow-[0_0_12px_rgba(239,68,68,0.2)] animate-pulse"
+                    : "bg-amber-500/10 text-amber-400 border border-amber-500/30")">
+                <div class="flex items-center gap-2 truncate">
+                    @if (unreadCount > 0)
+                    {
+                        <span class="inline-block w-1.5 h-1.5 rounded-full bg-red-500 animate-ping shrink-0"></span>
+                        <span class="font-bold text-red-300 truncate">🚨 Inkorgen</span>
+                    }
+                    else
+                    {
+                        <span class="truncate">📁 Inkorgen</span>
+                    }
+                </div>
+
+                <div class="flex items-center gap-1.5 shrink-0 font-mono text-[11px]">
+                    @if (unreadCount > 0)
+                    {
+                        <span class="px-1.5 py-0.5 rounded bg-red-500 text-slate-950 font-bold">
+                            @unreadCount NY
+                        </span>
+                    }
+                    <span class="px-1.5 py-0.5 rounded bg-white/5 text-slate-400">
+                        @totalCount
+                    </span>
+                </div>
+            </a>
+
+
+            <!-- Lab Projects -->
+            <a href="/backstage/labbar" class="flex items-center justify-between px-3 py-2 rounded text-slate-400 hover:text-slate-200 hover:bg-white/5 text-sm transition">
+                <span>🧪 Lab Projects</span>
+            </a>
+
+            <!-- Status & Loggar -->
+            <a href="/backstage/status" class="flex items-center justify-between px-3 py-2 rounded text-slate-400 hover:text-slate-200 hover:bg-white/5 text-sm transition">
+                <span>⚡ Status & Loggar</span>
+            </a>
+        </nav>
+
+        <!-- Botten / Tillbaka till publika sajten -->
+        <div class="pt-4 border-t border-amber-500/10 mt-auto">
+            <a href="/" class="flex items-center gap-2 text-xs text-slate-400 hover:text-amber-400 transition">
+                <span>← Tillbaka till sajten</span>
+            </a>
+        </div>
+
+        <div class="pt-4 border-t border-amber-500/10 mt-auto flex items-center justify-between text-xs">
+            <a href="/" class="text-slate-400 hover:text-amber-400 transition">
+                ← Sajten
+            </a>
+            <a href="/api/auth/logout" class="text-red-400/80 hover:text-red-400 transition">
+                [ Logga ut ]
+            </a>
+        </div>
+
+    </aside>
+
+    <!-- Huvudinnehåll -->
+    <main class="flex-1 p-4 md:p-8 overflow-y-auto">
+        @Body
+    </main>
+</div>
+
+@code {
+    private int totalCount = 0;
+    private int unreadCount = 0;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await RefreshCounts();
+    }
+
+    private async Task RefreshCounts()
+    {
+        try
+        {
+            var threads = await ContactService.GetAllThreadsAsync();
+            totalCount = threads.Count;
+            unreadCount = threads.Count(t => t.Status == ThreadStatus.New);
+        }
+        catch
+        {
+            totalCount = 0;
+            unreadCount = 0;
+        }
+    }
+}
