@@ -3,102 +3,148 @@
 @using ramii.dev.Core.Interfaces
 @inject IContactService ContactService
 
-<section id="kontakt" class="w-full bg-[#0a0d14] text-slate-100 py-16 px-4 sm:px-6 lg:px-8 border-t border-amber-500/20">
-    <div class="max-w-4xl mx-auto space-y-8">
+<section id="kontakt" class="w-full py-16 sm:py-24 px-4 sm:px-6 lg:px-8 border-t border-border-subtle">
+    <div class="max-w-3xl mx-auto space-y-8">
         
         <!-- Sektionsrubrik -->
-        <div class="text-center space-y-2">
-            <span class="text-xs uppercase tracking-widest text-amber-500 font-mono">[ 03 // KONTAKT ]</span>
-            <h2 class="text-3xl sm:text-4xl font-bold font-mono text-slate-100">
-                Skicka ett meddelande<span class="text-amber-500">_</span>
+        <div class="text-center space-y-2.5">
+            <span class="text-xs uppercase tracking-widest text-amber-accent font-mono">[ 03 // KONTAKT ]</span>
+            <h2 class="text-2xl sm:text-3xl font-bold font-mono text-heading">
+                Skicka ett meddelande<span class="text-amber-accent animate-pulse">_</span>
             </h2>
-            <p class="text-slate-400 text-sm max-w-lg mx-auto">
+            <p class="text-body text-xs sm:text-sm max-w-lg mx-auto font-sans leading-relaxed">
                 Vill du diskutera C#, DevSecOps, LIA eller ett labbprojekt? Fyll i formuläret nedan så hamnar det direkt i mitt interna ärendesystem.
             </p>
         </div>
 
-        <!-- Formulär-kort -->
-        <div class="bg-[#0e131f] border border-amber-500/30 rounded-lg p-6 sm:p-8 font-mono shadow-xl relative overflow-hidden">
-            <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-500/40 via-amber-500 to-amber-500/40"></div>
-
-            @if (isSuccess)
-            {
-                <div class="p-6 bg-emerald-950/40 border border-emerald-500/40 rounded text-emerald-300 space-y-2 text-center">
-                    <p class="text-base font-bold">>_ TACK! DITT MEDDELANDE ÄR MOTTAGET</p>
-                    <p class="text-xs text-emerald-400/80">Ärendet har sparats i databasen och jag återkommer så snart jag kan.</p>
-                    <button class="mt-4 px-4 py-2 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-200 text-xs rounded border border-emerald-500/40 transition"
-                            @onclick="() => isSuccess = false">
-                        [ Skicka ett till meddelande ]
-                    </button>
+        <!-- Terminalfönster -->
+        <div class="terminal-window border border-border-subtle rounded-lg font-mono shadow-2xl overflow-hidden">
+            
+            <!-- Terminal Header / Topplist -->
+            <div class="terminal-header px-4 py-2.5 border-b border-border-subtle flex items-center justify-between text-xs">
+                <div class="flex items-center gap-2">
+                    <span class="w-2.5 h-2.5 rounded-full bg-[#EF4444]"></span>
+                    <span class="w-2.5 h-2.5 rounded-full bg-amber-accent"></span>
+                    <span class="w-2.5 h-2.5 rounded-full bg-[#10B981]"></span>
+                    <span class="text-meta text-[11px] ml-1.5 font-mono">~/contact/send-message.sh</span>
                 </div>
-            }
-            else
-            {
-                <EditForm Model="@formModel" OnValidSubmit="HandleSubmit" FormName="contactForm">
-                    <DataAnnotationsValidator />
+                <div class="flex items-center gap-2">
+                    <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[10px] bg-surface text-[#34D399] border border-border-subtle font-mono">
+                        <span class="w-1.5 h-1.5 rounded-full bg-[#10B981] animate-pulse"></span>
+                        SQL Ready
+                    </span>
+                </div>
+            </div>
 
-                    @if (!string.IsNullOrEmpty(errorMessage))
-                    {
-                        <div class="mb-4 p-3 bg-red-950/50 border border-red-500/50 text-red-300 text-xs rounded">
-                            >_ Fel: @errorMessage
-                        </div>
-                    }
-
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-                        <!-- Namn -->
-                        <div>
-                            <label class="block text-xs text-slate-400 mb-1">Namn *</label>
-                            <InputText @bind-Value="formModel.Name"
-                                       class="w-full bg-[#080b12] border border-amber-500/30 rounded px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-amber-500 transition"
-                                       placeholder="Ditt namn..." />
-                            <ValidationMessage For="@(() => formModel.Name)" class="text-red-400 text-xs mt-1" />
-                        </div>
-
-                        <!-- E-post -->
-                        <div>
-                            <label class="block text-xs text-slate-400 mb-1">E-post *</label>
-                            <InputText @bind-Value="formModel.Email"
-                                       class="w-full bg-[#080b12] border border-amber-500/30 rounded px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-amber-500 transition"
-                                       placeholder="din.epost@foretag.se" />
-                            <ValidationMessage For="@(() => formModel.Email)" class="text-red-400 text-xs mt-1" />
-                        </div>
-                    </div>
-
-                    <!-- Ämne -->
-                    <div class="mb-4">
-                        <label class="block text-xs text-slate-400 mb-1">Ämne *</label>
-                        <InputText @bind-Value="formModel.Subject"
-                                   class="w-full bg-[#080b12] border border-amber-500/30 rounded px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-amber-500 transition"
-                                   placeholder="T.ex. LIA-plats, labbfråga eller DevSecOps" />
-                        <ValidationMessage For="@(() => formModel.Subject)" class="text-red-400 text-xs mt-1" />
-                    </div>
-
-                    <!-- Meddelande -->
-                    <div class="mb-6">
-                        <label class="block text-xs text-slate-400 mb-1">Meddelande *</label>
-                        <InputTextArea @bind-Value="formModel.Message" rows="5"
-                                       class="w-full bg-[#080b12] border border-amber-500/30 rounded px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-amber-500 transition"
-                                       placeholder="Skriv ditt meddelande här..." />
-                        <ValidationMessage For="@(() => formModel.Message)" class="text-red-400 text-xs mt-1" />
-                    </div>
-
-                    <!-- Skicka-knapp -->
-                    <div class="flex items-center justify-between pt-2 border-t border-white/5">
-                        <span class="text-xs text-slate-500">>_ Säker överföring till SQL</span>
-                        <button type="submit" disabled="@isSubmitting"
-                                class="px-6 py-2.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-sm rounded shadow hover:shadow-amber-500/20 transition flex items-center gap-2 disabled:opacity-50">
-                            @if (isSubmitting)
-                            {
-                                <span>Sparar...</span>
-                            }
-                            else
-                            {
-                                <span>[ Skicka meddelande ]</span>
-                            }
+            <!-- Terminal Body -->
+            <div class="p-5 sm:p-8 space-y-6">
+                @if (isSuccess)
+                {
+                    <div class="p-6 bg-surface border border-border-subtle rounded text-center space-y-3 font-mono">
+                        <p class="text-sm sm:text-base font-bold text-[#34D399]">>_ 200 OK: MEDDELANDE MOTTAGET</p>
+                        <p class="text-xs text-meta leading-relaxed">Ärendet har sparats i databasen och jag återkommer så snart jag kan.</p>
+                        <button type="button"
+                                class="mt-3 px-4 py-2 bg-surface hover:bg-border-subtle text-heading text-xs rounded border border-border-subtle transition cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-accent"
+                                @onclick="() => isSuccess = false">
+                            [ >_ Skicka ett till meddelande ]
                         </button>
                     </div>
-                </EditForm>
-            }
+                }
+                else
+                {
+                    <!-- Bash prompt line -->
+                    <div class="text-[11px] sm:text-xs text-meta pb-2 border-b border-border-subtle/50 flex items-center gap-2">
+                        <span class="text-amber-accent">ramii@devbox:~/contact$</span>
+                        <span class="text-heading">./send-message.sh --interactive</span>
+                    </div>
+
+                    <EditForm Model="@formModel" OnValidSubmit="HandleSubmit" FormName="contactForm">
+                        <DataAnnotationsValidator />
+
+                        <!-- DevSecOps Bot-fälla (Honeypot): Osynlig för människor, men bottar fyller i den -->
+                        <div class="hidden absolute -left-[9999px]" aria-hidden="true">
+                            <label for="contact-website">Webbplats</label>
+                            <InputText id="contact-website" @bind-Value="formModel.Honeypot" tabindex="-1" autocomplete="off" />
+                        </div>
+
+                        @if (!string.IsNullOrEmpty(errorMessage))
+                        {
+                            <div class="mb-4 p-3 bg-surface border border-[#EF4444]/40 text-[#F87171] text-xs rounded font-mono">
+                                >_ Fel: @errorMessage
+                            </div>
+                        }
+
+                        <div class="space-y-4">
+                            <!-- Namn & E-post -->
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label for="contact-name" class="block text-xs text-meta mb-1.5">
+                                        Namn <span class="text-amber-accent">*</span>
+                                    </label>
+                                    <InputText id="contact-name"
+                                               @bind-Value="formModel.Name"
+                                               placeholder="Ditt namn..."
+                                               class="w-full bg-surface border border-border-subtle rounded px-3.5 py-2.5 text-xs sm:text-sm text-heading placeholder:text-meta/40 transition-colors focus:outline-none focus:border-amber-accent focus:ring-1 focus:ring-amber-accent font-mono" />
+                                    <ValidationMessage For="() => formModel.Name" class="text-xs text-[#F87171] mt-1 font-mono" />
+                                </div>
+
+                                <div>
+                                    <label for="contact-email" class="block text-xs text-meta mb-1.5">
+                                        E-post <span class="text-amber-accent">*</span>
+                                    </label>
+                                    <InputText id="contact-email"
+                                               @bind-Value="formModel.Email"
+                                               placeholder="namn@doman.se"
+                                               class="w-full bg-surface border border-border-subtle rounded px-3.5 py-2.5 text-xs sm:text-sm text-heading placeholder:text-meta/40 transition-colors focus:outline-none focus:border-amber-accent focus:ring-1 focus:ring-amber-accent font-mono" />
+                                    <ValidationMessage For="() => formModel.Email" class="text-xs text-[#F87171] mt-1 font-mono" />
+                                </div>
+                            </div>
+
+                            <!-- Ämne -->
+                            <div>
+                                <label for="contact-subject" class="block text-xs text-meta mb-1.5">
+                                    Ämne <span class="text-amber-accent">*</span>
+                                </label>
+                                <InputText id="contact-subject"
+                                           @bind-Value="formModel.Subject"
+                                           placeholder="T.ex. LIA-plats, labbfråga eller DevSecOps"
+                                           class="w-full bg-surface border border-border-subtle rounded px-3.5 py-2.5 text-xs sm:text-sm text-heading placeholder:text-meta/40 transition-colors focus:outline-none focus:border-amber-accent focus:ring-1 focus:ring-amber-accent font-mono" />
+                                <ValidationMessage For="() => formModel.Subject" class="text-xs text-[#F87171] mt-1 font-mono" />
+                            </div>
+
+                            <!-- Meddelande -->
+                            <div>
+                                <label for="contact-message" class="block text-xs text-meta mb-1.5">
+                                    Meddelande <span class="text-amber-accent">*</span>
+                                </label>
+                                <InputTextArea id="contact-message"
+                                               @bind-Value="formModel.Message"
+                                               rows="5"
+                                               placeholder="Skriv ditt meddelande här..."
+                                               class="w-full bg-surface border border-border-subtle rounded px-3.5 py-2.5 text-xs sm:text-sm text-heading placeholder:text-meta/40 transition-colors focus:outline-none focus:border-amber-accent focus:ring-1 focus:ring-amber-accent resize-y font-mono" />
+                                <ValidationMessage For="() => formModel.Message" class="text-xs text-[#F87171] mt-1 font-mono" />
+                            </div>
+
+                            <!-- Terminal Footer / Actions -->
+                            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pt-3 border-t border-border-subtle/50">
+                                <span class="text-[11px] sm:text-xs text-meta font-mono">>_ Säker överföring till SQL (TLS / Parametriserad)</span>
+                                <button type="submit"
+                                        disabled="@isSubmitting"
+                                        class="w-full sm:w-auto px-5 py-2.5 bg-amber-accent hover:brightness-110 text-page font-bold text-xs sm:text-sm rounded transition cursor-pointer disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-accent focus-visible:ring-offset-2 focus-visible:ring-offset-card">
+                                    @if (isSubmitting)
+                                    {
+                                        <span>Exekverar...</span>
+                                    }
+                                    else
+                                    {
+                                        <span>[ Skicka meddelande ]</span>
+                                    }
+                                </button>
+                            </div>
+                        </div>
+                    </EditForm>
+                }
+            </div>
         </div>
     </div>
 </section>
@@ -108,11 +154,35 @@
     private bool isSubmitting = false;
     private bool isSuccess = false;
     private string? errorMessage;
+    private DateTime formRenderedAt = DateTime.UtcNow;
+
+    protected override void OnInitialized()
+    {
+        formRenderedAt = DateTime.UtcNow;
+    }
 
     private async Task HandleSubmit()
     {
         isSubmitting = true;
         errorMessage = null;
+
+        // DevSecOps Bot-skydd 1: Honeypot-kontroll
+        if (!string.IsNullOrWhiteSpace(formModel.Honeypot))
+        {
+            // Bot upptäckt – låtsas lyckas tyst så botten inte testar andra metoder
+            isSuccess = true;
+            isSubmitting = false;
+            return;
+        }
+
+        // DevSecOps Bot-skydd 2: Tidsanalys (en människa tar minst 2 sekunder)
+        var elapsedSeconds = (DateTime.UtcNow - formRenderedAt).TotalSeconds;
+        if (elapsedSeconds < 2.0)
+        {
+            errorMessage = "Formuläret skickades misstänkt snabbt. Försök igen.";
+            isSubmitting = false;
+            return;
+        }
 
         try
         {
@@ -125,6 +195,7 @@
 
             isSuccess = true;
             formModel = new ContactFormModel();
+            formRenderedAt = DateTime.UtcNow;
         }
         catch (Exception ex)
         {
@@ -139,12 +210,16 @@
 
     public class ContactFormModel
     {
+        // Osynligt honeypot-fält
+        public string? Honeypot { get; set; }
+
         [Required(ErrorMessage = "Vänligen ange ditt namn")]
         [StringLength(100, ErrorMessage = "Namnet får max vara 100 tecken")]
         public string Name { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Vänligen ange din e-postadress")]
         [EmailAddress(ErrorMessage = "Ange en giltig e-postadress")]
+        [RegularExpression(@"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$", ErrorMessage = "Ange en giltig domänadress (t.ex. namn@foretag.se)")]
         [StringLength(150, ErrorMessage = "E-posten får max vara 150 tecken")]
         public string Email { get; set; } = string.Empty;
 

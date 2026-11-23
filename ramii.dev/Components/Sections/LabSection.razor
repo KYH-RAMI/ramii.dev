@@ -1,195 +1,170 @@
-﻿<section id="labbar" class="w-full bg-[#0a0d14] text-slate-100 px-4 sm:px-6 py-16 sm:py-20 border-b border-amber-950/40">
-    <div class="max-w-6xl mx-auto space-y-10">
-    
-        <!-- Sektionsrubrik med knapp till höger -->
+﻿@* Components/Sections/LabSection.razor *@
+
+<section id="labbar" class="w-full py-16 px-4 sm:px-6 lg:px-8 bg-page border-t border-border-subtle/40">
+    <div class="max-w-7xl mx-auto space-y-8">
+        
+        <!-- Sektionsrubrik -->
         <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
             <div class="space-y-2">
-                <span class="text-xs font-mono tracking-widest text-amber-500 font-semibold uppercase">
-                    // LABB &amp; KURSER
-                </span>
-                <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-white font-mono">
-                    Mina labbar &amp; kurser
+                <div class="text-xs font-mono tracking-widest text-amber-accent uppercase">
+                    // LABB & KURSER
+                </div>
+                <h2 class="text-3xl sm:text-4xl font-bold tracking-tight text-heading font-sans">
+                    Mina labbar & kurser
                 </h2>
-                <p class="text-xs sm:text-sm text-slate-400 font-mono max-w-xl">
+                <p class="text-body text-sm sm:text-base max-w-2xl font-sans">
                     Praktiska labbar och kurser från KYH – fokus på säkerhet, DevSecOps och moderna system.
                 </p>
             </div>
 
-            <a href="https://github.com/KYH-RAMI" target="_blank" rel="noopener noreferrer"
-               class="w-fit px-4 py-2 rounded-md border border-amber-500/40 text-amber-400 hover:bg-amber-500/10 hover:border-amber-400 font-mono text-xs font-medium transition-all flex items-center gap-2">
-                <span>Se alla repon på GitHub</span> &rarr;
+            <a href="https://github.com/KYH-RAMI"
+               target="_blank"
+               rel="noopener noreferrer"
+               class="inline-flex items-center gap-2 px-4 py-2 rounded-md border border-border-subtle bg-surface hover:border-amber-accent/50 text-meta hover:text-heading text-xs font-mono transition-colors self-start sm:self-auto">
+                <span>Se alla repon på GitHub</span>
+                <span class="text-amber-accent">→</span>
             </a>
         </div>
 
-        <!-- 2x2 Grid med labbkort exakt från skissen -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 font-mono">
-      
-            <!-- Kort 1: SQL Injection Defense -->
-            <a href="https://github.com/KYH-RAMI/SQL" target="_blank" rel="noopener noreferrer"
-               class="rounded-xl border border-amber-500/30 bg-[#0c1017] p-6 hover:border-amber-400 hover:bg-[#0e1420] transition-all group flex flex-col justify-between gap-6 shadow-xl shadow-black/40">
-                <div class="space-y-4">
-                    <div class="flex items-start justify-between gap-3">
-                        <div class="flex items-center gap-3">
-                            <!-- DB ikon -->
-                            <div class="w-9 h-9 rounded-lg bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 text-lg">
-                                🗄
-                            </div>
-                            <h3 class="text-base sm:text-lg font-bold text-white group-hover:text-amber-400 transition-colors">
-                                SQL Injection Defense Lab
-                            </h3>
+        <!-- Grid med hybridkorten (A + B) -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+            <!-- KORT 1: ramii.dev // Backstage & Internsystem -->
+            <div class="bg-card border border-border-subtle rounded-xl overflow-hidden hover:border-border-strong transition-all flex flex-col justify-between">
+                
+                <!-- Topplist (Från A) -->
+                <div class="px-4 py-2.5 bg-surface/80 border-b border-border-subtle flex items-center justify-between text-xs font-mono select-none">
+                    <div class="flex items-center gap-2">
+                        <div class="flex items-center gap-1.5">
+                            <span class="w-2.5 h-2.5 rounded-full bg-red-500/80"></span>
+                            <span class="w-2.5 h-2.5 rounded-full bg-amber-500/80"></span>
+                            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500/80"></span>
                         </div>
-                        <span class="text-[11px] text-amber-500/90 bg-amber-950/30 px-2 py-0.5 rounded border border-amber-500/30">
-                            [SQLi Defense]
-                        </span>
+                        <span class="text-meta ml-1 text-[11px]">~/projects/ramii-backstage/</span>
                     </div>
-
-                    <p class="text-xs text-slate-300 leading-relaxed font-sans">
-                        Säkerställer applikationen mot SQL-injection genom parametriserade queries, validering och ORM.
-                    </p>
-
-                    <div class="flex flex-wrap gap-2 text-[11px] text-slate-400 pt-1">
-                        <span class="px-2 py-1 rounded bg-slate-900 border border-slate-800 text-slate-300 flex items-center gap-1">
-                            🛡 Säkerhet
-                        </span>
-                        <span class="px-2 py-1 rounded bg-slate-900 border border-slate-800 text-slate-300 flex items-center gap-1">
-                            &lt;/&gt; ASP.NET Core
-                        </span>
-                        <span class="px-2 py-1 rounded bg-slate-900 border border-slate-800 text-slate-300 flex items-center gap-1">
-                            🗄 SQL Server
-                        </span>
-                    </div>
-                </div>
-
-                <div class="pt-4 border-t border-slate-800/80 flex items-center justify-between text-xs text-slate-400">
-                    <span class="flex items-center gap-1.5 text-amber-500/80">
-                        <span>👤</span> Lab 1 • 2 h
+                    <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded text-[11px] font-mono border border-emerald-500/30 bg-emerald-500/10 text-emerald-400">
+                        &bull; Produktion
                     </span>
-                    <span class="text-amber-400 group-hover:translate-x-1 transition-transform">&rarr;</span>
                 </div>
-            </a>
 
-            <!-- Kort 2: Data Integrity & Validation -->
-            <a href="https://github.com/KYH-RAMI/CSharp-Assignments" target="_blank" rel="noopener noreferrer"
-               class="rounded-xl border border-amber-500/30 bg-[#0c1017] p-6 hover:border-amber-400 hover:bg-[#0e1420] transition-all group flex flex-col justify-between gap-6 shadow-xl shadow-black/40">
-                <div class="space-y-4">
-                    <div class="flex items-start justify-between gap-3">
-                        <div class="flex items-center gap-3">
-                            <div class="w-9 h-9 rounded-lg bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 text-lg">
-                                🛡
-                            </div>
-                            <h3 class="text-base sm:text-lg font-bold text-white group-hover:text-amber-400 transition-colors">
-                                Data Integrity &amp; Validation
-                            </h3>
+                <!-- Kortkropp -->
+                <div class="p-5 sm:p-6 space-y-4 flex-1 flex flex-col justify-between">
+                    <div class="space-y-2">
+                        <h3 class="text-lg sm:text-xl font-bold text-heading font-sans">
+                            ramii.dev // Backstage & Internsystem
+                        </h3>
+                        <p class="text-sm text-body leading-relaxed font-sans">
+                            Eget kontakt- och ärendehanteringssystem med separat skyddad adminvy, cookie-autentisering och isolerad databasåtkomst via DbContextFactory.
+                        </p>
+                    </div>
+
+                    <!-- Spec-ruta (Från B) -->
+                    <div class="p-3.5 rounded-lg bg-surface border border-border-subtle font-mono text-xs grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                        <div class="flex items-center justify-between sm:justify-start gap-2">
+                            <span class="text-meta">ARCH:</span>
+                            <span class="text-heading font-medium">Core / Data / Web</span>
                         </div>
-                        <span class="text-[11px] text-amber-500/90 bg-amber-950/30 px-2 py-0.5 rounded border border-amber-500/30">
-                            [Data Integrity]
-                        </span>
-                    </div>
-
-                    <p class="text-xs text-slate-300 leading-relaxed font-sans">
-                        Implementerar data integrity med constraints, validering och säker hantering av användardata.
-                    </p>
-
-                    <div class="flex flex-wrap gap-2 text-[11px] text-slate-400 pt-1">
-                        <span class="px-2 py-1 rounded bg-slate-900 border border-slate-800 text-slate-300 flex items-center gap-1">
-                            🛡 Säkerhet
-                        </span>
-                        <span class="px-2 py-1 rounded bg-slate-900 border border-slate-800 text-slate-300 flex items-center gap-1">
-                            &lt;/&gt; C#
-                        </span>
-                        <span class="px-2 py-1 rounded bg-slate-900 border border-slate-800 text-slate-300 flex items-center gap-1">
-                            🗄 SQL Server
-                        </span>
-                    </div>
-                </div>
-
-                <div class="pt-4 border-t border-slate-800/80 flex items-center justify-between text-xs text-slate-400">
-                    <span class="flex items-center gap-1.5 text-amber-500/80">
-                        <span>👤</span> Lab 2 • 2.5 h
-                    </span>
-                    <span class="text-amber-400 group-hover:translate-x-1 transition-transform">&rarr;</span>
-                </div>
-            </a>
-
-            <!-- Kort 3: Docker & Container Security -->
-            <a href="https://github.com/KYH-RAMI" target="_blank" rel="noopener noreferrer"
-               class="rounded-xl border border-amber-500/30 bg-[#0c1017] p-6 hover:border-amber-400 hover:bg-[#0e1420] transition-all group flex flex-col justify-between gap-6 shadow-xl shadow-black/40">
-                <div class="space-y-4">
-                    <div class="flex items-start justify-between gap-3">
-                        <div class="flex items-center gap-3">
-                            <div class="w-9 h-9 rounded-lg bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 text-lg">
-                                📦
-                            </div>
-                            <h3 class="text-base sm:text-lg font-bold text-white group-hover:text-amber-400 transition-colors">
-                                Docker &amp; Container Security
-                            </h3>
+                        <div class="flex items-center justify-between sm:justify-start gap-2">
+                            <span class="text-meta">AUTH:</span>
+                            <span class="text-heading font-medium">ASP.NET Cookie (HttpOnly)</span>
+                        </div>
+                        <div class="flex items-center justify-between sm:justify-start gap-2">
+                            <span class="text-meta">DATA:</span>
+                            <span class="text-heading font-medium">EF Core 11 + SQL Server</span>
+                        </div>
+                        <div class="flex items-center justify-between sm:justify-start gap-2">
+                            <span class="text-meta">RUNTIME:</span>
+                            <span class="text-heading font-medium">.NET 11 &bull; Blazor Server</span>
                         </div>
                     </div>
 
-                    <p class="text-xs text-slate-300 leading-relaxed font-sans">
-                        Bygger säkra containers med minimal attackyta, sårbarhetsscanning och best practices för Dockerfiles.
-                    </p>
-
-                    <div class="flex flex-wrap gap-2 text-[11px] text-slate-400 pt-1">
-                        <span class="px-2 py-1 rounded bg-slate-900 border border-slate-800 text-slate-300 flex items-center gap-1">
-                            📦 Docker
-                        </span>
-                        <span class="px-2 py-1 rounded bg-slate-900 border border-slate-800 text-slate-300 flex items-center gap-1">
-                            🛡 Security
-                        </span>
-                        <span class="px-2 py-1 rounded bg-slate-900 border border-slate-800 text-slate-300 flex items-center gap-1">
-                            ☁ DevOps
-                        </span>
+                    <!-- Footer: Taggar & Terminal Actions -->
+                    <div class="pt-2 flex flex-wrap items-center justify-between gap-3 border-t border-border-subtle/40">
+                        <div class="flex flex-wrap gap-1.5">
+                            <span class="px-2 py-0.5 text-[11px] font-mono rounded bg-surface border border-border-subtle text-meta">#csharp</span>
+                            <span class="px-2 py-0.5 text-[11px] font-mono rounded bg-surface border border-border-subtle text-meta">#dotnet11</span>
+                            <span class="px-2 py-0.5 text-[11px] font-mono rounded bg-surface border border-border-subtle text-meta">#blazor</span>
+                            <span class="px-2 py-0.5 text-[11px] font-mono rounded bg-surface border border-border-subtle text-meta">#mssql</span>
+                        </div>
+                        <div class="flex items-center gap-3 font-mono text-xs">
+                            <a href="https://github.com/KYH-RAMI" target="_blank" rel="noopener noreferrer" class="text-amber-accent hover:underline flex items-center gap-1 font-medium">
+                                &gt;_ code &nearr;
+                            </a>
+                            <a href="/login" class="text-amber-accent hover:underline flex items-center gap-1 font-medium">
+                                &gt;_ inspect
+                            </a>
+                        </div>
                     </div>
                 </div>
 
-                <div class="pt-4 border-t border-slate-800/80 flex items-center justify-between text-xs text-slate-400">
-                    <span class="flex items-center gap-1.5 text-amber-500/80">
-                        <span>👤</span> Lab 3 • 3 h
-                    </span>
-                    <span class="text-amber-400 group-hover:translate-x-1 transition-transform">&rarr;</span>
-                </div>
-            </a>
+            </div>
 
-            <!-- Kort 4: CI/CD with GitHub Actions -->
-            <a href="https://github.com/KYH-RAMI" target="_blank" rel="noopener noreferrer"
-               class="rounded-xl border border-amber-500/30 bg-[#0c1017] p-6 hover:border-amber-400 hover:bg-[#0e1420] transition-all group flex flex-col justify-between gap-6 shadow-xl shadow-black/40">
-                <div class="space-y-4">
-                    <div class="flex items-start justify-between gap-3">
-                        <div class="flex items-center gap-3">
-                            <div class="w-9 h-9 rounded-lg bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 text-lg">
-                                ⚡
-                            </div>
-                            <h3 class="text-base sm:text-lg font-bold text-white group-hover:text-amber-400 transition-colors">
-                                CI/CD with GitHub Actions
-                            </h3>
+            <!-- KORT 2: T-SQL & Databasdesign // Kursmoment -->
+            <div class="bg-card border border-border-subtle rounded-xl overflow-hidden hover:border-border-strong transition-all flex flex-col justify-between">
+                
+                <!-- Topplist (Från A) -->
+                <div class="px-4 py-2.5 bg-surface/80 border-b border-border-subtle flex items-center justify-between text-xs font-mono select-none">
+                    <div class="flex items-center gap-2">
+                        <div class="flex items-center gap-1.5">
+                            <span class="w-2.5 h-2.5 rounded-full bg-red-500/80"></span>
+                            <span class="w-2.5 h-2.5 rounded-full bg-amber-500/80"></span>
+                            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500/80"></span>
+                        </div>
+                        <span class="text-meta ml-1 text-[11px]">~/labs/sql-database-design/</span>
+                    </div>
+                    <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded text-[11px] font-mono border border-amber-accent/30 bg-amber-accent/10 text-amber-accent">
+                        &bull; Slutförd Kurs
+                    </span>
+                </div>
+
+                <!-- Kortkropp -->
+                <div class="p-5 sm:p-6 space-y-4 flex-1 flex flex-col justify-between">
+                    <div class="space-y-2">
+                        <h3 class="text-lg sm:text-xl font-bold text-heading font-sans">
+                            T-SQL & Databasdesign // Kursmoment
+                        </h3>
+                        <p class="text-sm text-body leading-relaxed font-sans">
+                            Relationsdatabaser, schemadesign, indexeringsstrategier, transaktionshantering och lagrade procedurer i Microsoft SQL Server 2022.
+                        </p>
+                    </div>
+
+                    <!-- Spec-ruta (Från B) -->
+                    <div class="p-3.5 rounded-lg bg-surface border border-border-subtle font-mono text-xs grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                        <div class="flex items-center justify-between sm:justify-start gap-2">
+                            <span class="text-meta">SCOPE:</span>
+                            <span class="text-heading font-medium">KYH (DevSecOps)</span>
+                        </div>
+                        <div class="flex items-center justify-between sm:justify-start gap-2">
+                            <span class="text-meta">ENGINE:</span>
+                            <span class="text-heading font-medium">MSSQL Server 2022</span>
+                        </div>
+                        <div class="flex items-center justify-between sm:justify-start gap-2">
+                            <span class="text-meta">TOPICS:</span>
+                            <span class="text-heading font-medium">Index, Views, Triggers</span>
+                        </div>
+                        <div class="flex items-center justify-between sm:justify-start gap-2">
+                            <span class="text-meta">STATUS:</span>
+                            <span class="text-heading font-medium">Godkänd kurs &bull; Nov 2026</span>
                         </div>
                     </div>
 
-                    <p class="text-xs text-slate-300 leading-relaxed font-sans">
-                        Automatiserar bygg, test och deployment med säkerhetskontroller och SAST-scanning i pipeline-flödet.
-                    </p>
-
-                    <div class="flex flex-wrap gap-2 text-[11px] text-slate-400 pt-1">
-                        <span class="px-2 py-1 rounded bg-slate-900 border border-slate-800 text-slate-300 flex items-center gap-1">
-                            ⚡ CI/CD
-                        </span>
-                        <span class="px-2 py-1 rounded bg-slate-900 border border-slate-800 text-slate-300 flex items-center gap-1">
-                            🐱 GitHub
-                        </span>
-                        <span class="px-2 py-1 rounded bg-slate-900 border border-slate-800 text-slate-300 flex items-center gap-1">
-                            🛡 Security
-                        </span>
+                    <!-- Footer: Taggar & Terminal Actions -->
+                    <div class="pt-2 flex flex-wrap items-center justify-between gap-3 border-t border-border-subtle/40">
+                        <div class="flex flex-wrap gap-1.5">
+                            <span class="px-2 py-0.5 text-[11px] font-mono rounded bg-surface border border-border-subtle text-meta">#t-sql</span>
+                            <span class="px-2 py-0.5 text-[11px] font-mono rounded bg-surface border border-border-subtle text-meta">#mssql</span>
+                            <span class="px-2 py-0.5 text-[11px] font-mono rounded bg-surface border border-border-subtle text-meta">#indexing</span>
+                            <span class="px-2 py-0.5 text-[11px] font-mono rounded bg-surface border border-border-subtle text-meta">#database</span>
+                        </div>
+                        <div class="flex items-center gap-3 font-mono text-xs">
+                            <a href="https://github.com/KYH-RAMI/SQL" target="_blank" rel="noopener noreferrer" class="text-amber-accent hover:underline flex items-center gap-1 font-medium">
+                                &gt;_ kurslabb &nearr;
+                            </a>
+                        </div>
                     </div>
                 </div>
 
-                <div class="pt-4 border-t border-slate-800/80 flex items-center justify-between text-xs text-slate-400">
-                    <span class="flex items-center gap-1.5 text-amber-500/80">
-                        <span>👤</span> Lab 4 • 2.5 h
-                    </span>
-                    <span class="text-amber-400 group-hover:translate-x-1 transition-transform">&rarr;</span>
-                </div>
-            </a>
+            </div>
 
         </div>
 

@@ -9,16 +9,16 @@
     <link rel="stylesheet" href="@Assets["app.css"]" />
     <link rel="stylesheet" href="@Assets["ramii.dev.styles.css"]" />
 
-    <!-- Google Font: Space Mono (typsnittet från skissen) -->
+    <!-- Google Fonts: Inter för läsbar brödtext + Space Mono för terminal & kod -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
 
     <ImportMap />
     <HeadOutlet @rendermode="InteractiveServer" />
 </head>
 
-<body class="bg-[#0a0d14] text-slate-100" style="font-family: 'Space Mono', monospace;">
+<body>
     <Routes @rendermode="InteractiveServer" />
     <ReconnectModal />
     <script src="@Assets["_framework/blazor.web.js"]"></script>
