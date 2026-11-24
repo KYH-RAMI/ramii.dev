@@ -8,6 +8,7 @@
     --font-mono: 'Space Mono', monospace;
     /* Neutral kalibrerad grafit – fri från grön/blå OLED-hinna */
     --color-page: #0E1013;
+    --color-bg: #0E1013;
     --color-card: #16181D;
     --color-surface: #1B1E24;
     /* Högkontrast text utan smutsiga undertoner */
@@ -15,11 +16,14 @@
     --color-body: #C2C7D0;
     --color-meta: #9CA3AF;
     /* Terminal Amber */
+    --color-amber: #E5A00D;
     --color-amber-accent: #E5A00D;
     /* Krispiga kanter */
+    --color-border: #282D37;
     --color-border-subtle: #282D37;
     --color-border-strong: #38404E;
 }
+
 
 body {
     background-color: var(--color-page);

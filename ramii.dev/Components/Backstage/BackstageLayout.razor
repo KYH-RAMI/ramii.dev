@@ -3,15 +3,15 @@
 @using ramii.dev.Core.Entities
 @inject IContactService ContactService
 
-<div class="min-h-screen bg-[#07090e] text-slate-100 font-mono flex flex-col md:flex-row">
+<div class="min-h-screen bg-[var(--color-bg)] text-[var(--color-body)] font-mono flex flex-col md:flex-row">
     <!-- Vänstermeny / Sidebar -->
-    <aside class="w-full md:w-64 bg-[#0a0e17] border-b md:border-b-0 md:border-r border-amber-500/20 flex flex-col p-4 shrink-0">
+    <aside class="w-full md:w-64 bg-[var(--color-card)] border-b md:border-b-0 md:border-r border-[var(--color-border)] flex flex-col p-4 shrink-0">
         <!-- Logo & Status -->
-        <div class="pb-6 border-b border-amber-500/10">
-            <div class="text-amber-500 font-bold text-lg tracking-wider flex items-center gap-2">
+        <div class="pb-6 border-b border-[var(--color-border)]">
+            <div class="text-[var(--color-amber)] font-bold text-lg tracking-wider flex items-center gap-2">
                 <span>[>_ ramii.dev]</span>
             </div>
-            <div class="flex items-center gap-2 mt-2 text-xs text-slate-400">
+            <div class="flex items-center gap-2 mt-2 text-xs text-[var(--color-meta)]">
                 <span class="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
                 <span>backstage // admin</span>
             </div>
@@ -19,11 +19,9 @@
 
         <!-- Navigation -->
         <nav class="mt-6 flex flex-col gap-1.5 flex-1">
-            <!-- Ärenden / Inbox med Alert-logik på en snygg rad -->
+            <!-- Ärenden / Inbox med Alert-logik -->
             <a href="/backstage"
-               class="flex items-center justify-between px-3 py-2 rounded text-xs transition @(unreadCount > 0
-                    ? "bg-red-950/40 text-red-400 border border-red-500/60 shadow-[0_0_12px_rgba(239,68,68,0.2)] animate-pulse"
-                    : "bg-amber-500/10 text-amber-400 border border-amber-500/30")">
+               class="@GetInboxClass()">
                 <div class="flex items-center gap-2 truncate">
                     @if (unreadCount > 0)
                     {
@@ -43,7 +41,7 @@
                             @unreadCount NY
                         </span>
                     }
-                    <span class="px-1.5 py-0.5 rounded bg-white/5 text-slate-400">
+                    <span class="px-1.5 py-0.5 rounded bg-white/5 text-[var(--color-meta)]">
                         @totalCount
                     </span>
                 </div>
@@ -51,32 +49,33 @@
 
 
             <!-- Lab Projects -->
-            <a href="/backstage/labbar" class="flex items-center justify-between px-3 py-2 rounded text-slate-400 hover:text-slate-200 hover:bg-white/5 text-sm transition">
-                <span>🧪 Lab Projects</span>
-            </a>
+            <NavLink href="/backstage/labbar" class="flex items-center gap-2 px-3 py-2 text-xs rounded text-[var(--color-meta)] hover:text-[var(--color-heading)] hover:bg-[var(--color-surface)] transition">
+                <span>🧪</span>
+                <span>Lab Projects</span>
+            </NavLink>
 
             <!-- Status & Loggar -->
-            <a href="/backstage/status" class="flex items-center justify-between px-3 py-2 rounded text-slate-400 hover:text-slate-200 hover:bg-white/5 text-sm transition">
-                <span>⚡ Status & Loggar</span>
-            </a>
+            <NavLink href="/backstage/status" class="flex items-center gap-2 px-3 py-2 text-xs rounded text-[var(--color-meta)] hover:text-[var(--color-heading)] hover:bg-[var(--color-surface)] transition">
+                <span>⚡</span>
+                <span>Status & Loggar</span>
+            </NavLink>
+
+            <!-- Administratörer -->
+            <NavLink href="/backstage/admins" class="flex items-center gap-2 px-3 py-2 text-xs rounded text-[var(--color-meta)] hover:text-[var(--color-heading)] hover:bg-[var(--color-surface)] transition">
+                <span>🛡️</span>
+                <span>Administratörer</span>
+            </NavLink>
         </nav>
 
-        <!-- Botten / Tillbaka till publika sajten -->
-        <div class="pt-4 border-t border-amber-500/10 mt-auto">
-            <a href="/" class="flex items-center gap-2 text-xs text-slate-400 hover:text-amber-400 transition">
-                <span>← Tillbaka till sajten</span>
-            </a>
-        </div>
-
-        <div class="pt-4 border-t border-amber-500/10 mt-auto flex items-center justify-between text-xs">
-            <a href="/" class="text-slate-400 hover:text-amber-400 transition">
+        <!-- Botten: Tillbaka till sajten & Logga ut -->
+        <div class="pt-4 border-t border-[var(--color-border)] mt-auto flex items-center justify-between text-xs">
+            <a href="/" class="text-[var(--color-meta)] hover:text-[var(--color-amber)] transition">
                 ← Sajten
             </a>
             <a href="/api/auth/logout" class="text-red-400/80 hover:text-red-400 transition">
                 [ Logga ut ]
             </a>
         </div>
-
     </aside>
 
     <!-- Huvudinnehåll -->
@@ -108,4 +107,9 @@
             unreadCount = 0;
         }
     }
+    private string GetInboxClass() =>
+    unreadCount > 0
+        ? "flex items-center justify-between px-3 py-2 rounded text-xs transition bg-red-950/40 text-red-400 border border-red-500/60 shadow-[0_0_12px_rgba(239,68,68,0.2)] animate-pulse"
+        : "flex items-center justify-between px-3 py-2 rounded text-xs transition text-[var(--color-meta)] hover:text-[var(--color-heading)] hover:bg-[var(--color-surface)] border border-transparent";
+
 }

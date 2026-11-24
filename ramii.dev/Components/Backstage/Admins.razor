@@ -1,0 +1,221 @@
+﻿@page "/backstage/admins"
+@layout BackstageLayout
+@attribute [Authorize]
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
+@using ramii.dev.Core.Interfaces
+@using ramii.dev.Core.Entities
+@inject IAuthService AuthService
+
+<div class="space-y-6">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[var(--color-border)]">
+        <div>
+            <h1 class="text-xl sm:text-2xl font-bold font-mono tracking-wide text-[var(--color-heading)] flex items-center gap-2">
+                <span class="text-[var(--color-amber)]">&gt;</span> ADMINISTRATÖRER // ÅTKOMST
+            </h1>
+            <p class="text-xs sm:text-sm text-[var(--color-meta)] mt-1">Hantera systemadministratörer och behörigheter</p>
+        </div>
+        <div class="flex items-center gap-3">
+            <button @onclick="LoadAdminsAsync" class="px-3 py-1.5 text-xs font-mono text-[var(--color-meta)] hover:text-[var(--color-heading)] border border-[var(--color-border)] hover:border-[var(--color-amber)]/40 rounded bg-[var(--color-card)] transition">
+                ↻ Uppdatera
+            </button>
+            <span class="text-xs font-mono px-2.5 py-1 rounded border border-[var(--color-border)] text-[var(--color-meta)] bg-[var(--color-card)]">
+                Totalt: <span class="text-[var(--color-amber)] font-bold">@admins.Count</span>
+            </span>
+        </div>
+    </div>
+
+    <!-- Huvudinnehåll: 2 kolumner sida vid sida -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+        <!-- Vänster kolumn: Lista över administratörer -->
+        <div class="space-y-3">
+            <div class="text-xs font-mono uppercase tracking-wider text-[var(--color-meta)] mb-2">Aktiva konton</div>
+            @if (isLoading)
+            {
+                <div class="p-6 text-center text-xs font-mono text-[var(--color-meta)] border border-[var(--color-border)] rounded bg-[var(--color-card)]">
+                    Laddar administratörer...
+                </div>
+            }
+            else
+            {
+                <div class="space-y-3">
+                    @foreach (var admin in admins)
+                    {
+                        var isMe = string.Equals(admin.Username, currentUsername, StringComparison.OrdinalIgnoreCase);
+                        <div class="p-4 rounded border border-[var(--color-border)] bg-[var(--color-card)] hover:border-[var(--color-amber)]/40 transition flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                            <div class="space-y-1">
+                                <div class="flex items-center gap-2">
+                                    <span class="font-bold text-sm text-[var(--color-heading)]">@admin.Username</span>
+                                    @if (isMe)
+                                    {
+                                        <span class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-[var(--color-amber)]/20 text-[var(--color-amber)] border border-[var(--color-amber)]/30 font-semibold">Du</span>
+                                    }
+                                    <span class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Active</span>
+                                </div>
+                                <div class="text-xs text-[var(--color-meta)] font-mono">@admin.Email</div>
+                            </div>
+                            <div class="text-[11px] font-mono text-[var(--color-meta)] sm:text-right space-y-0.5 border-t sm:border-t-0 border-[var(--color-border)] pt-2 sm:pt-0">
+                                <div>Skapad: <span class="text-[var(--color-body)]">@admin.CreatedAt.ToString("yyyy-MM-dd")</span></div>
+                                <div>Senast aktiv: <span class="text-[var(--color-body)]">@(admin.LastLoginAt.HasValue ? admin.LastLoginAt.Value.ToString("yyyy-MM-dd HH:mm") : "Aldrig")</span></div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+
+        <!-- Höger kolumn: Formulär Skapa administratör -->
+        <div>
+            <div class="border border-[var(--color-border)] rounded-lg overflow-hidden bg-[var(--color-card)] shadow-lg">
+                <!-- Terminal header -->
+                <div class="px-4 py-2.5 border-b border-[var(--color-border)] bg-[var(--color-surface)] flex items-center justify-between">
+                    <span class="font-mono text-xs text-[var(--color-meta)]">&gt;_ ~/admins/create-user.sh</span>
+                    <div class="flex items-center gap-1.5">
+                        <span class="w-2.5 h-2.5 rounded-full border border-[var(--color-border)] inline-block"></span>
+                        <span class="w-2.5 h-2.5 rounded-full border border-[var(--color-border)] inline-block"></span>
+                        <span class="w-2.5 h-2.5 rounded-full border border-[var(--color-border)] inline-block"></span>
+                    </div>
+                </div>
+
+                <!-- Formulär kropp -->
+                <div class="p-5 space-y-4">
+                    <div class="text-xs text-[var(--color-meta)] font-mono">
+                        Skapa ett nytt administratörskonto med full behörighet till Backstage.
+                    </div>
+
+                    @if (!string.IsNullOrEmpty(feedbackMessage))
+                    {
+                        <div class="p-3 rounded text-xs font-mono border @(isSuccess ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-300" : "bg-red-500/10 border-red-500/30 text-red-300")">
+                            @feedbackMessage
+                        </div>
+                    }
+
+                    <div class="space-y-3">
+                        <div>
+                            <label class="block text-xs font-mono text-[var(--color-meta)] mb-1">&gt; Användarnamn</label>
+                            <input @bind="newUsername" type="text" placeholder="t.ex. sec_admin" class="w-full px-3 py-2 text-sm bg-[var(--color-surface)] border border-[var(--color-border)] rounded text-[var(--color-heading)] focus:outline-none focus:border-[var(--color-amber)] font-mono" />
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-mono text-[var(--color-meta)] mb-1">&gt; E-postadress</label>
+                            <input @bind="newEmail" type="email" placeholder="namn@ramii.dev" class="w-full px-3 py-2 text-sm bg-[var(--color-surface)] border border-[var(--color-border)] rounded text-[var(--color-heading)] focus:outline-none focus:border-[var(--color-amber)] font-mono" />
+                        </div>
+
+                        <div>
+                            <div class="flex items-center justify-between mb-1">
+                                <label class="text-xs font-mono text-[var(--color-meta)]">&gt; Lösenord</label>
+                                <button type="button" @onclick="GeneratePassword" class="text-[11px] font-mono text-[var(--color-amber)] hover:underline">
+                                    ⚡ Generera säkert
+                                </button>
+                            </div>
+                            <input @bind="newPassword" type="text" placeholder="Minst 8 tecken eller välj själv" class="w-full px-3 py-2 text-sm bg-[var(--color-surface)] border border-[var(--color-border)] rounded text-[var(--color-heading)] focus:outline-none focus:border-[var(--color-amber)] font-mono" />
+                        </div>
+
+                        <button @onclick="CreateAdminAsync" disabled="@isSubmitting" class="w-full mt-2 py-2.5 px-4 bg-[var(--color-amber)] hover:brightness-110 text-neutral-950 font-bold text-xs font-mono uppercase tracking-wider rounded transition disabled:opacity-50">
+                            @(isSubmitting ? "Skapar..." : "[ + Skapa administratör ]")
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [CascadingParameter]
+    private Task<AuthenticationState> AuthStateTask { get; set; } = default!;
+
+    private List<AdminUser> admins = new();
+    private bool isLoading = true;
+    private bool isSubmitting = false;
+    private string currentUsername = string.Empty;
+    private string newUsername = string.Empty;
+    private string newEmail = string.Empty;
+    private string newPassword = string.Empty;
+    private string? feedbackMessage;
+    private bool isSuccess;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (AuthStateTask != null)
+        {
+            var authState = await AuthStateTask;
+            currentUsername = authState.User.Identity?.Name ?? string.Empty;
+        }
+
+        await LoadAdminsAsync();
+    }
+
+    private async Task LoadAdminsAsync()
+    {
+        isLoading = true;
+        admins = await AuthService.GetAllAdminsAsync();
+        isLoading = false;
+    }
+
+    private async Task CreateAdminAsync()
+    {
+        feedbackMessage = null;
+
+        if (string.IsNullOrWhiteSpace(newUsername) || newUsername.Trim().Length < 3)
+        {
+            SetError("Användarnamnet måste vara minst 3 tecken.");
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(newEmail) || !newEmail.Contains('@') || !newEmail.Contains('.'))
+        {
+            SetError("Ange en giltig e-postadress.");
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(newPassword) || newPassword.Length < 8)
+        {
+            SetError("Lösenordet måste vara minst 8 tecken.");
+            return;
+        }
+
+        isSubmitting = true;
+
+        try
+        {
+            var created = await AuthService.CreateAdminAsync(newUsername, newEmail, newPassword);
+            if (created)
+            {
+                isSuccess = true;
+                feedbackMessage = $"Administratören '{newUsername.Trim()}' har skapats.";
+                newUsername = string.Empty;
+                newEmail = string.Empty;
+                newPassword = string.Empty;
+                await LoadAdminsAsync();
+            }
+            else
+            {
+                SetError("Användarnamnet eller e-postadressen är redan registrerad.");
+            }
+        }
+        finally
+        {
+            isSubmitting = false;
+        }
+    }
+
+    private void SetError(string message)
+    {
+        isSuccess = false;
+        feedbackMessage = message;
+    }
+
+    private void GeneratePassword()
+    {
+        const string validChars = "abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNOPQRSTUVWXYZ23456789!@#$%^&*";
+        var bytes = System.Security.Cryptography.RandomNumberGenerator.GetBytes(16);
+        var chars = new char[16];
+        for (int i = 0; i < 16; i++)
+        {
+            chars[i] = validChars[bytes[i] % validChars.Length];
+        }
+        newPassword = new string(chars);
+    }
+}

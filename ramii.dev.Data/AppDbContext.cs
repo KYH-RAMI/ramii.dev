@@ -13,9 +13,19 @@ public class AppDbContext : DbContext
     public DbSet<ThreadMessage> Messages => Set<ThreadMessage>();
 
     public DbSet<LabProject> LabProjects => Set<LabProject>();
+    public DbSet<AdminUser> AdminUsers => Set<AdminUser>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
+
+        modelBuilder.Entity<AdminUser>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Username).HasMaxLength(100).IsRequired();
+            entity.Property(e => e.PasswordHash).HasMaxLength(500).IsRequired();
+            entity.HasIndex(e => e.Username).IsUnique();
+        });
 
         modelBuilder.Entity<ContactThread>(entity =>
         {
