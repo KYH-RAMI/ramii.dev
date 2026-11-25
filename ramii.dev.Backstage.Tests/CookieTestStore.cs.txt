@@ -1,0 +1,18 @@
+using ramii.dev.Core.Entities;
+using ramii.dev.Core.Interfaces;
+
+internal sealed class CookieTestStore : IContactService, IAuthService
+{
+    public Task<List<ContactThread>> GetAllThreadsAsync() =>
+        Task.FromResult<List<ContactThread>>([new() { Id = 42, Subject = "COOKIE-TEST-INBOX" }]);
+    public Task<List<AdminUser>> GetAllAdminsAsync() =>
+        Task.FromResult<List<AdminUser>>([new() { Username = "COOKIE-TEST-ADMIN" }]);
+    public Task<ContactThread> CreateThreadAsync(string name, string email, string subject, string message) => throw new NotSupportedException();
+    public Task<ContactThread?> GetThreadByIdAsync(int id) => throw new NotSupportedException();
+    public Task<ThreadMessage> AddReplyAsync(int threadId, string replyBody, bool isFromAdmin) => throw new NotSupportedException();
+    public Task<bool> ValidateCredentialsAsync(string username, string password) => throw new NotSupportedException();
+    public Task UpdateLastLoginAsync(string username) => throw new NotSupportedException();
+    public Task EnsureAdminCreatedAsync(string username, string initialPassword) => throw new NotSupportedException();
+    public Task<bool> CreateAdminAsync(string username, string email, string password) => throw new NotSupportedException();
+}
+

@@ -1,0 +1,33 @@
+name: Build and test
+
+on:
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-test:
+    runs-on: windows-latest
+
+    steps:
+      - name: Check out source code
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Install .NET SDK
+        uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: '11.0.100'
+
+      - name: Restore NuGet packages
+        run: dotnet restore ramii.dev.slnx
+
+      - name: Build solution
+        run: dotnet build ramii.dev.slnx --configuration Release --no-restore
+
+      - name: Run Backstage authorization tests
+        run: dotnet run --project ramii.dev.Backstage.Tests --configuration Release --no-build

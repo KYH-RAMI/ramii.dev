@@ -1,11 +1,13 @@
-﻿@page "/backstage/admins"
+@page "/backstage/admins"
 @layout BackstageLayout
-@attribute [Authorize]
+@using ramii.dev.Security
+@using ramii.dev.Services
+@attribute [Authorize(Policy = BackstagePolicy.Name)]
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.Components.Authorization
 @using ramii.dev.Core.Interfaces
 @using ramii.dev.Core.Entities
-@inject IAuthService AuthService
+@inject IBackstageOperations Backstage
 
 <div class="space-y-6">
     <!-- Header -->
@@ -126,7 +128,7 @@
     [CascadingParameter]
     private Task<AuthenticationState> AuthStateTask { get; set; } = default!;
 
-    private List<AdminUser> admins = new();
+    private List<BackstageAdminSummary> admins = new();
     private bool isLoading = true;
     private bool isSubmitting = false;
     private string currentUsername = string.Empty;
@@ -150,8 +152,19 @@
     private async Task LoadAdminsAsync()
     {
         isLoading = true;
-        admins = await AuthService.GetAllAdminsAsync();
-        isLoading = false;
+        try
+        {
+            admins = await Backstage.GetAdminsAsync();
+        }
+        catch (UnauthorizedAccessException)
+        {
+            admins.Clear();
+            SetError("Du har inte behörighet att läsa administratörslistan.");
+        }
+        finally
+        {
+            isLoading = false;
+        }
     }
 
     private async Task CreateAdminAsync()
@@ -180,7 +193,7 @@
 
         try
         {
-            var created = await AuthService.CreateAdminAsync(newUsername, newEmail, newPassword);
+            var created = await Backstage.CreateAdminAsync(newUsername, newEmail, newPassword);
             if (created)
             {
                 isSuccess = true;
@@ -194,6 +207,12 @@
             {
                 SetError("Användarnamnet eller e-postadressen är redan registrerad.");
             }
+        }
+        catch (UnauthorizedAccessException)
+        {
+            admins.Clear();
+            newPassword = string.Empty;
+            SetError("Du har inte behörighet att skapa administratörer.");
         }
         finally
         {
