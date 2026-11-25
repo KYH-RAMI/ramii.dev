@@ -29,7 +29,7 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                         <label for="contact-name" class="@LabelClass">Namn</label>
-                        <input id="contact-name" name="name" required maxlength="100" autocomplete="name" class="@FieldClass" />
+                        <input id="contact-name" name="name" required minlength="@ramii.dev.Services.ContactEndpoint.MinNameLength" maxlength="100" autocomplete="name" class="@FieldClass" />
                     </div>
                     <div>
                         <label for="contact-email" class="@LabelClass">E-post</label>

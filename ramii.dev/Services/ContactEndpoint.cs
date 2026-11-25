@@ -11,6 +11,7 @@ namespace ramii.dev.Services;
 public static class ContactEndpoint
 {
     private const int MaxRequestBytes = 32 * 1024;
+    internal const int MinNameLength = 3;
 
     internal const string EmailPattern = @"[^@\s]+@(?:[A-Za-z0-9](?:[A-Za-z0-9\-]*[A-Za-z0-9])?\.)+[A-Za-z][A-Za-z0-9\-]*[A-Za-z0-9]";
 
@@ -139,7 +140,7 @@ public static class ContactEndpoint
     private sealed class ContactFormEndpoint { }
 
     private sealed record ContactSubmission(
-        [property: Required, StringLength(100)] string Name,
+        [property: Required, StringLength(100, MinimumLength = MinNameLength)] string Name,
         [property: Required, EmailAddress, StringLength(150), RegularExpression(EmailPattern)] string Email,
         [property: Required, StringLength(150)] string Subject,
         [property: Required, StringLength(2000)] string Message);
