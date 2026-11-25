@@ -1,11 +1,13 @@
-﻿@page "/backstage"
-@attribute [Microsoft.AspNetCore.Authorization.Authorize]
+@page "/backstage"
+@using ramii.dev.Security
+@using ramii.dev.Services
+@attribute [Microsoft.AspNetCore.Authorization.Authorize(Policy = BackstagePolicy.Name)]
 
 @layout BackstageLayout
 @rendermode InteractiveServer
 @using ramii.dev.Core.Entities
 @using ramii.dev.Core.Interfaces
-@inject IContactService ContactService
+@inject IBackstageOperations Backstage
 
 <div class="max-w-6xl mx-auto space-y-6">
     <!-- Toppbanner -->
@@ -137,7 +139,13 @@
     </div>
 </div>
 
+@if (accessDenied)
+{
+    <p role="alert">Du har inte behörighet till inkorgen.</p>
+}
+
 @code {
+    private bool accessDenied;
     private List<ContactThread> threads = new();
     private ContactThread? selectedThread;
     private string replyText = string.Empty;
@@ -154,11 +162,19 @@
         isLoading = true;
         try
         {
-            threads = await ContactService.GetAllThreadsAsync();
+            threads = await Backstage.GetThreadsAsync();
+            accessDenied = false;
             if (selectedThread != null)
             {
                 selectedThread = threads.FirstOrDefault(t => t.Id == selectedThread.Id);
             }
+        }
+        catch (UnauthorizedAccessException)
+        {
+            accessDenied = true;
+            threads.Clear();
+            selectedThread = null;
+            replyText = string.Empty;
         }
         finally
         {
@@ -178,9 +194,16 @@
         isReplying = true;
         try
         {
-            await ContactService.AddReplyAsync(selectedThread.Id, replyText, isFromAdmin: true);
+            await Backstage.ReplyAsync(selectedThread.Id, replyText);
             replyText = string.Empty;
             await LoadThreads();
+        }
+        catch (UnauthorizedAccessException)
+        {
+            accessDenied = true;
+            threads.Clear();
+            selectedThread = null;
+            replyText = string.Empty;
         }
         finally
         {

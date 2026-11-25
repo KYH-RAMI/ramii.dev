@@ -13,15 +13,17 @@ FROM mcr.microsoft.com/dotnet/sdk:11.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 COPY ["ramii.dev/ramii.dev.csproj","ramii.dev/"]
+COPY ["ramii.dev.Core/ramii.dev.Core.csproj","ramii.dev.Core/"]
+COPY ["ramii.dev.Data/ramii.dev.Data.csproj","ramii.dev.Data/"]
 RUN dotnet restore "./ramii.dev/ramii.dev.csproj"
 COPY . .
 WORKDIR "/src/ramii.dev"
-RUN dotnet build "./ramii.dev.csproj" -c $BUILD_CONFIGURATION -o /app/build
+RUN dotnet build "./ramii.dev.csproj" -c $BUILD_CONFIGURATION --no-restore -o /app/build
 
 # This stage is used to publish the service project to be copied to the final stage
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "./ramii.dev.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "./ramii.dev.csproj" -c $BUILD_CONFIGURATION --no-restore -o /app/publish /p:UseAppHost=false
 
 # This stage is used in production or when running from VS in regular mode (Default when not using the Debug configuration)
 FROM base AS final

@@ -1,5 +1,39 @@
-﻿@page "/"
-@inject NavigationManager Nav
+@page "/"
+
+<PageTitle>Rami Issa – DevSecOps-student som söker LIA inom IT-säkerhet</PageTitle>
+<HeadContent>
+    <meta name="description" content="@Description" />
+    <link rel="canonical" href="@CanonicalUrl" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="sv_SE" />
+    <meta property="og:title" content="Rami Issa – DevSecOps-student som söker LIA inom IT-säkerhet" />
+    <meta property="og:description" content="@Description" />
+    <meta property="og:url" content="@CanonicalUrl" />
+    <script type="application/ld+json">@((MarkupString)ProfileData)</script>
+</HeadContent>
+
 <HeroSection />
 <LabSection />
 <ContactSection />
+
+@code {
+    private const string CanonicalUrl = "https://ramii.dev/";
+    private const string Description = "Rami Issa studerar DevSecOps på KYH, lär sig grunderna i C# och SQL och söker LIA med fokus på IT-säkerhet från november 2027.";
+
+    private const string ProfileData = """
+        {
+          "@context": "https://schema.org",
+          "@type": "ProfilePage",
+          "url": "https://ramii.dev/",
+          "mainEntity": {
+            "@type": "Person",
+            "name": "Rami Issa",
+            "url": "https://ramii.dev/",
+            "sameAs": [
+              "https://github.com/KYH-RAMI",
+              "https://www.linkedin.com/in/rami-issa-b239623ab/"
+            ]
+          }
+        }
+        """;
+}

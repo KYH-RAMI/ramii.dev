@@ -1,7 +1,8 @@
-﻿@inherits LayoutComponentBase
+@inherits LayoutComponentBase
 @using ramii.dev.Core.Interfaces
 @using ramii.dev.Core.Entities
-@inject IContactService ContactService
+@using ramii.dev.Services
+@inject IBackstageOperations Backstage
 
 <div class="min-h-screen bg-[var(--color-bg)] text-[var(--color-body)] font-mono flex flex-col md:flex-row">
     <!-- Vänstermeny / Sidebar -->
@@ -97,7 +98,7 @@
     {
         try
         {
-            var threads = await ContactService.GetAllThreadsAsync();
+            var threads = await Backstage.GetThreadsAsync();
             totalCount = threads.Count;
             unreadCount = threads.Count(t => t.Status == ThreadStatus.New);
         }

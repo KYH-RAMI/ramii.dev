@@ -1,4 +1,6 @@
 using System.Security.Claims;
+using ramii.dev.Security;
+using ramii.dev.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
@@ -25,17 +27,42 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
     .AddCookie(options =>
     {
         options.LoginPath = "/login";
+        options.AccessDeniedPath = "/access-denied";
         options.Cookie.Name = "ramii_auth";
         options.Cookie.HttpOnly = true;
         options.Cookie.SameSite = SameSiteMode.Strict;
         options.ExpireTimeSpan = TimeSpan.FromDays(7);
     });
 
-builder.Services.AddAuthorization();
+builder.Services.AddBackstage();
+builder.Services.AddContactProtection();
 builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddScoped<IAuthService, AuthService>();
 
 var app = builder.Build();
+
+if (args.Contains("--migrate"))
+{
+    var contextFactory = app.Services.GetRequiredService<IDbContextFactory<AppDbContext>>();
+    await using var context = await contextFactory.CreateDbContextAsync();
+
+    Console.WriteLine("Tillämpar väntande databasmigreringar...");
+    await context.Database.MigrateAsync();
+    Console.WriteLine("Databasen är uppdaterad.");
+    return;
+}
+
+app.Use(async (context, next) =>
+{
+    var path = context.Request.Path;
+    if (path.StartsWithSegments("/backstage") || path.StartsWithSegments("/api") ||
+        path.Equals("/login") || path.Equals("/access-denied"))
+    {
+        context.Response.Headers["X-Robots-Tag"] = "noindex";
+    }
+
+    await next(context);
+});
 
 app.UseAuthentication();
 app.UseAuthorization();
@@ -67,7 +94,7 @@ app.MapPost("/api/auth/login", async (
     var claims = new List<Claim>
     {
         new(ClaimTypes.Name, username),
-        new(ClaimTypes.Role, "Admin")
+        new(ClaimTypes.Role, BackstagePolicy.Role)
     };
 
     var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
@@ -106,6 +133,9 @@ if (!app.Environment.IsDevelopment())
 }
 app.UseStatusCodePagesWithReExecute("/not-found", createScopeForStatusCodePages: true);
 app.UseHttpsRedirection();
+app.UseRateLimiter();
+app.UseAntiforgery();
+app.MapContactForm();
 
 app.MapStaticAssets();
 app.MapRazorComponents<App>()
