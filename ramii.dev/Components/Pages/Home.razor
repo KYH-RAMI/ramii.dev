@@ -1,15 +1,26 @@
 @page "/"
 
-<PageTitle>Rami Issa – DevSecOps-student som söker LIA inom IT-säkerhet</PageTitle>
+<PageTitle>@Title</PageTitle>
+
 <HeadContent>
     <meta name="description" content="@Description" />
     <link rel="canonical" href="@CanonicalUrl" />
+
+    <!-- Open Graph -->
     <meta property="og:type" content="website" />
     <meta property="og:locale" content="sv_SE" />
-    <meta property="og:title" content="Rami Issa – DevSecOps-student som söker LIA inom IT-säkerhet" />
+    <meta property="og:site_name" content="ramii.dev" />
+    <meta property="og:title" content="@Title" />
     <meta property="og:description" content="@Description" />
     <meta property="og:url" content="@CanonicalUrl" />
-    <script type="application/ld+json">@((MarkupString)ProfileData)</script>
+    <meta property="og:image" content="@OgImageUrl" />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Rami Issa – DevSecOps-student på KYH" />
+
+    <!-- Strukturerade data -->
+    <script type="application/ld+json">@((MarkupString)StructuredData)</script>
 </HeadContent>
 
 <HeroSection />
@@ -17,23 +28,49 @@
 <ContactSection />
 
 @code {
-    private const string CanonicalUrl = "https://ramii.dev/";
-    private const string Description = "Rami Issa studerar DevSecOps på KYH, lär sig grunderna i C# och SQL och söker LIA med fokus på IT-säkerhet från november 2027.";
+    private const string Title = "Rami Issa – DevSecOps-student";
 
-    private const string ProfileData = """
+    private const string CanonicalUrl = "https://ramii.dev/";
+
+    private const string OgImageUrl =
+    "https://ramii.dev/images/og-image.png";
+
+    private const string Description =
+        "Rami Issa, DevSecOps-student på KYH med intresse för cybersäkerhet, Linux och säker systemutveckling. Söker LIA från november 2027.";
+
+    private const string StructuredData = """
         {
           "@context": "https://schema.org",
-          "@type": "ProfilePage",
-          "url": "https://ramii.dev/",
-          "mainEntity": {
-            "@type": "Person",
-            "name": "Rami Issa",
-            "url": "https://ramii.dev/",
-            "sameAs": [
-              "https://github.com/KYH-RAMI",
-              "https://www.linkedin.com/in/rami-issa-b239623ab/"
-            ]
-          }
+          "@graph": [
+            {
+              "@type": "WebSite",
+              "@id": "https://ramii.dev/#website",
+              "name": "ramii.dev",
+              "url": "https://ramii.dev/",
+              "inLanguage": "sv-SE"
+            },
+            {
+              "@type": "ProfilePage",
+              "@id": "https://ramii.dev/#profile",
+              "url": "https://ramii.dev/",
+              "name": "Rami Issa – DevSecOps-student",
+              "inLanguage": "sv-SE",
+              "isPartOf": {
+                "@id": "https://ramii.dev/#website"
+              },
+              "mainEntity": {
+                "@type": "Person",
+                "@id": "https://ramii.dev/#person",
+                "name": "Rami Issa",
+                "url": "https://ramii.dev/",
+                "description": "DevSecOps-student på KYH med intresse för cybersäkerhet, Linux och säker systemutveckling.",
+                "sameAs": [
+                  "https://github.com/KYH-RAMI",
+                  "https://www.linkedin.com/in/rami-issa-b239623ab/"
+                ]
+              }
+            }
+          ]
         }
         """;
 }

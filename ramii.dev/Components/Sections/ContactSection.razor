@@ -1,63 +1,156 @@
+
 <section id="kontakt" class="w-full py-16 sm:py-24 px-4 sm:px-6 lg:px-8 border-t border-border-subtle">
     <div class="max-w-3xl mx-auto space-y-8">
+
+        <!-- Sektionsrubrik -->
         <div class="text-center space-y-2.5">
-            <h2 class="text-2xl sm:text-3xl font-bold font-mono text-heading">Skicka ett meddelande</h2>
-            <p class="text-body text-sm">Hör gärna av dig om du vill prata om en LIA-plats med säkerhetsfokus eller om du har en fråga om mina projekt.</p>
+            <span class="text-xs uppercase tracking-widest text-amber-accent font-mono">
+                [ 03 // KONTAKT ]
+            </span>
+
+            <h2 class="text-2xl sm:text-3xl font-bold font-mono text-heading">
+                Kontakt & LIA<span class="text-amber-accent animate-pulse">_</span>
+            </h2>
+
+            <p class="text-body text-xs sm:text-sm max-w-lg mx-auto font-sans leading-relaxed">
+                Har du frågor om mina projekt eller möjligheter till LIA
+                inom DevSecOps och IT-säkerhet? Hör gärna av dig.
+            </p>
         </div>
 
-        <div class="terminal-window border border-border-subtle rounded-lg p-5 sm:p-8 font-mono">
-            @if (Status == "sent")
-            {
-                <p class="mb-4 text-heading" role="status">Ditt meddelande har tagits emot.</p>
-            }
-            @if (Status is "invalid" or "expired")
-            {
-                <p class="mb-4 text-[#F87171]" role="alert">
-                    @(Status == "invalid"
-                        ? "Kontrollera fälten och försök igen."
-                        : "Formuläret har gått ut. Fyll i det igen och skicka på nytt.")
+        <!-- Terminalfönster -->
+        <div class="terminal-window border border-border-subtle rounded-lg overflow-hidden font-mono">
+
+            <!-- Terminalens titelrad -->
+            <div class="flex items-center gap-3 px-4 py-3 bg-surface border-b border-border-subtle">
+                <div class="flex items-center gap-2" aria-hidden="true">
+                    <span class="w-2.5 h-2.5 rounded-full bg-[#EF4444]"></span>
+                    <span class="w-2.5 h-2.5 rounded-full bg-amber-accent"></span>
+                    <span class="w-2.5 h-2.5 rounded-full bg-[#10B981]"></span>
+                </div>
+
+                <span class="text-xs sm:text-sm text-meta">
+                    ~/contact/send-message.sh
+                </span>
+            </div>
+
+            <!-- Terminalens innehåll -->
+            <div class="p-5 sm:p-8">
+
+                <p class="text-sm text-amber-accent mb-5" aria-hidden="true">
+                    ramii@@devbox:~/contact$
                 </p>
-            }
 
-            <form method="post" action="/api/contact" class="space-y-4">
-                <AntiforgeryToken />
-                <div hidden>
-                    <label for="contact-website">Webbplats</label>
-                    <input id="contact-website" name="website" tabindex="-1" autocomplete="off" />
-                </div>
+                @if (Status == "sent")
+                {
+                    <p class="mb-4 text-heading" role="status">
+                        Ditt meddelande har tagits emot.
+                    </p>
+                }
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                        <label for="contact-name" class="@LabelClass">Namn</label>
-                        <input id="contact-name" name="name" required minlength="@ramii.dev.Services.ContactEndpoint.MinNameLength" maxlength="100" autocomplete="name" class="@FieldClass" />
+                @if (Status is "invalid" or "expired")
+                {
+                    <p class="mb-4 text-[#F87171]" role="alert">
+                        @(Status == "invalid"
+                            ? "Kontrollera fälten och försök igen."
+                            : "Formuläret har gått ut. Fyll i det igen och skicka på nytt.")
+                    </p>
+                }
+
+                <!-- Kontaktformulär -->
+                <form method="post" action="/api/contact" class="space-y-4">
+
+                    <AntiforgeryToken />
+
+                    <!-- Honeypot -->
+                    <div hidden>
+                        <label for="contact-website">Webbplats</label>
+                        <input id="contact-website"
+                               name="website"
+                               tabindex="-1"
+                               autocomplete="off" />
                     </div>
-                    <div>
-                        <label for="contact-email" class="@LabelClass">E-post</label>
-                        <input type="email" id="contact-email" name="email" required maxlength="150" autocomplete="email" pattern="@ramii.dev.Services.ContactEndpoint.EmailPattern" oninvalid="if (this.validity.typeMismatch || this.validity.patternMismatch) this.setCustomValidity('Ange en giltig e-postadress.');"
-                               oninput="this.setCustomValidity('');" class="@FieldClass" />
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+
+                        <div>
+                            <label for="contact-name" class="@LabelClass">
+                                Namn *
+                            </label>
+
+                            <input id="contact-name"
+                                   name="name"
+                                   required
+                                   minlength="@ramii.dev.Services.ContactEndpoint.MinNameLength"
+                                   maxlength="100"
+                                   autocomplete="name"
+                                   class="@FieldClass" />
+                        </div>
+
+                        <div>
+                            <label for="contact-email" class="@LabelClass">
+                                E-post *
+                            </label>
+
+                            <input type="email"
+                                   id="contact-email"
+                                   name="email"
+                                   required
+                                   maxlength="150"
+                                   autocomplete="email"
+                                   pattern="@ramii.dev.Services.ContactEndpoint.EmailPattern"
+                                   oninvalid="if (this.validity.typeMismatch || this.validity.patternMismatch) this.setCustomValidity('Ange en giltig e-postadress.');"
+                                   oninput="this.setCustomValidity('');"
+                                   class="@FieldClass" />
+                        </div>
                     </div>
-                </div>
-                <div>
-                    <label for="contact-subject" class="@LabelClass">Ämne</label>
-                    <input id="contact-subject" name="subject" required maxlength="150" class="@FieldClass" />
-                </div>
-                <div>
-                    <label for="contact-message" class="@LabelClass">Meddelande</label>
-                    <textarea id="contact-message" name="message" rows="5" required maxlength="2000" class="@FieldClass"></textarea>
-                </div>
-                <button type="submit" class="px-4 py-2.5 rounded bg-amber-accent text-page font-bold focus-visible:ring-2 focus-visible:ring-amber-accent">
-                    Skicka meddelande
-                </button>
-            </form>
+
+                    <div>
+                        <label for="contact-subject" class="@LabelClass">
+                            Ämne *
+                        </label>
+
+                        <input id="contact-subject"
+                               name="subject"
+                               required
+                               maxlength="150"
+                               class="@FieldClass" />
+                    </div>
+
+                    <div>
+                        <label for="contact-message" class="@LabelClass">
+                            Meddelande *
+                        </label>
+
+                        <textarea id="contact-message"
+                                  name="message"
+                                  rows="5"
+                                  required
+                                  maxlength="2000"
+                                  class="@FieldClass"></textarea>
+                    </div>
+
+                    <!-- Skicka meddelande -->
+                    <div class="flex justify-end">
+                        <button type="submit"
+                                class="px-4 py-2.5 rounded bg-amber-accent text-page font-mono text-sm focus-visible:ring-2 focus-visible:ring-amber-accent">
+                            [ Skicka meddelande ]
+                        </button>
+                    </div>
+
+                </form>
+            </div>
         </div>
     </div>
 </section>
 
 @code {
-    private const string LabelClass = "block text-xs text-meta mb-1.5";
-    private const string FieldClass = "w-full bg-surface border border-border-subtle rounded px-3.5 py-2.5 text-sm text-heading focus:outline-none focus:border-amber-accent";
+    private const string LabelClass =
+        "block text-xs text-meta mb-1.5";
+
+    private const string FieldClass =
+        "w-full bg-surface border border-border-subtle rounded px-3.5 py-2.5 text-sm text-heading focus:outline-none focus:border-amber-accent";
 
     [SupplyParameterFromQuery(Name = "kontakt")]
     private string? Status { get; set; }
 }
-
