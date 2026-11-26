@@ -7,6 +7,9 @@ on:
   push:
     branches:
       - main
+concurrency:
+  group: ramii-dev-${{ github.ref }}
+  cancel-in-progress: true
 
 permissions:
   contents: read
@@ -67,3 +70,5 @@ jobs:
             -t "$IMAGE:$GITHUB_SHA" .
 
           docker push "$IMAGE:$GITHUB_SHA"
+          docker tag "$IMAGE:$GITHUB_SHA" "$IMAGE:production"
+          docker push "$IMAGE:production"
