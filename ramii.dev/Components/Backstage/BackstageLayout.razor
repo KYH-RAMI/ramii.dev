@@ -1,5 +1,4 @@
 @inherits LayoutComponentBase
-@using ramii.dev.Core.Interfaces
 @using ramii.dev.Core.Entities
 @using ramii.dev.Services
 @inject IBackstageOperations Backstage
@@ -73,9 +72,14 @@
             <a href="/" class="text-[var(--color-meta)] hover:text-[var(--color-amber)] transition">
                 ← Sajten
             </a>
-            <a href="/api/auth/logout" class="text-red-400/80 hover:text-red-400 transition">
-                [ Logga ut ]
-            </a>
+            <form method="post" action="/api/auth/logout">
+                <AntiforgeryToken />
+
+                <button type="submit" 
+                    class="text-red-400/80 hover:text-red-400 transition cursor-pointer">
+                    [ Logga ut ]
+                </button>
+            </form>
         </div>
     </aside>
 

@@ -1,15 +1,15 @@
-using System.Security.Claims;
-using ramii.dev.Security;
-using ramii.dev.Services;
+using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 using ramii.dev.Components;
-using ramii.dev.Data;
 using ramii.dev.Core.Interfaces;
+using ramii.dev.Data;
 using ramii.dev.Data.Services;
-
+using ramii.dev.Security;
+using ramii.dev.Services;
+using System.Security.Claims;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -31,7 +31,9 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         options.Cookie.Name = "ramii_auth";
         options.Cookie.HttpOnly = true;
         options.Cookie.SameSite = SameSiteMode.Strict;
-        options.ExpireTimeSpan = TimeSpan.FromDays(7);
+        options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+        options.ExpireTimeSpan = TimeSpan.FromMinutes(60);
+        options.SlidingExpiration = false;
     });
 
 builder.Services.AddBackstage();
@@ -64,25 +66,38 @@ app.Use(async (context, next) =>
     await next(context);
 });
 
-app.UseAuthentication();
-app.UseAuthorization();
 
 // Inloggnings-endpoint
 app.MapPost("/api/auth/login", async (
     HttpContext httpContext,
-    IAuthService authService) =>
+    IAuthService authService,
+    IAntiforgery antiforgery) =>
 {
-    var form = await httpContext.Request.ReadFormAsync();
+    // Validera antiforgery-token
+    try
+    {
+        await antiforgery.ValidateRequestAsync(httpContext);
+    }
+    catch (AntiforgeryValidationException)
+    {
+        return Results.BadRequest("Ogiltig säkerhetstoken.");
+    }
+
+    var form = await httpContext.Request.ReadFormAsync(
+        httpContext.RequestAborted);
+
     var username = form["username"].ToString().Trim();
     var password = form["password"].ToString();
     var returnUrl = form["returnUrl"].ToString();
 
-    if (string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(password))
+    if (string.IsNullOrWhiteSpace(username) ||
+        string.IsNullOrWhiteSpace(password))
     {
         return Results.Redirect("/login?error=invalid");
     }
 
     var isValid = await authService.ValidateCredentialsAsync(username, password);
+
     if (!isValid)
     {
         return Results.Redirect("/login?error=invalid");
@@ -97,11 +112,12 @@ app.MapPost("/api/auth/login", async (
         new(ClaimTypes.Role, BackstagePolicy.Role)
     };
 
-    var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+    var identity = new ClaimsIdentity(
+        claims, CookieAuthenticationDefaults.AuthenticationScheme);
+
     var authProperties = new AuthenticationProperties
     {
-        IsPersistent = true,
-        ExpiresUtc = DateTimeOffset.UtcNow.AddDays(7)
+        IsPersistent = false
     };
 
     await httpContext.SignInAsync(
@@ -109,34 +125,57 @@ app.MapPost("/api/auth/login", async (
         new ClaimsPrincipal(identity),
         authProperties);
 
-    var target = !string.IsNullOrWhiteSpace(returnUrl) && returnUrl.StartsWith('/')
+    var target = RedirectHttpResult.IsLocalUrl(returnUrl)
         ? returnUrl
         : "/backstage";
 
-    return Results.Redirect(target);
-}).DisableAntiforgery();
+    return Results.LocalRedirect(target);
+})
+.RequireRateLimiting("login");
 
 
 // Utloggnings-endpoint
-app.MapGet("/api/auth/logout", async (HttpContext httpContext) =>
+app.MapPost("/api/auth/logout", async (
+    HttpContext httpContext,
+    IAntiforgery antiforgery) =>
 {
-    await httpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-    return Results.Redirect("/login");
-});
+    try
+    {
+        await antiforgery.ValidateRequestAsync(httpContext);
+    }
+    catch (AntiforgeryValidationException)
+    {
+        return Results.BadRequest("Ogiltig säkerhetstoken.");
+    }
+
+    await httpContext.SignOutAsync(
+        CookieAuthenticationDefaults.AuthenticationScheme);
+
+    return Results.LocalRedirect("/login");
+})
+.RequireAuthorization();
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error", createScopeForErrors: true);
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
-app.UseStatusCodePagesWithReExecute("/not-found", createScopeForStatusCodePages: true);
+
+app.UseStatusCodePagesWithReExecute(
+    "/not-found",
+    createScopeForStatusCodePages: true);
+
 app.UseHttpsRedirection();
+app.UseRouting();
+
+app.UseAuthentication();
+app.UseAuthorization();
+
 app.UseRateLimiter();
 app.UseAntiforgery();
-app.MapContactForm();
 
+app.MapContactForm();
 app.MapStaticAssets();
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
