@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 using ramii.dev.Components;
+using ramii.dev.Core.Configuration;
 using ramii.dev.Core.Interfaces;
 using ramii.dev.Data;
 using ramii.dev.Data.Services;
@@ -20,8 +21,29 @@ builder.Services.AddRazorComponents()
 builder.Services.AddDbContextFactory<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+// Registrera SMTP- och IMAP-inställningar
+builder.Services.Configure<SmtpSettings>(
+    builder.Configuration.GetSection("Email:Smtp"));
+
+builder.Services.Configure<ImapSettings>(
+    builder.Configuration.GetSection("Email:Imap"));
+
+// Hämta autentiseringsuppgifter från konfiguration
+builder.Services.PostConfigure<SmtpSettings>(options =>
+{
+    options.Username = builder.Configuration["Email:Username"] ?? string.Empty;
+    options.Password = builder.Configuration["Email:Password"] ?? string.Empty;
+});
+
+builder.Services.PostConfigure<ImapSettings>(options =>
+{
+    options.Username = builder.Configuration["Email:Username"] ?? string.Empty;
+    options.Password = builder.Configuration["Email:Password"] ?? string.Empty;
+});
 
 builder.Services.AddScoped<IContactService, ContactService>();
+builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddScoped<ImapService>();
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
@@ -40,6 +62,8 @@ builder.Services.AddBackstage();
 builder.Services.AddContactProtection();
 builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddHostedService<EmailOutboxWorker>();
+builder.Services.AddHostedService<ImapSyncWorker>();
 
 var app = builder.Build();
 

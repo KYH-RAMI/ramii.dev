@@ -1,13 +1,20 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using ramii.dev.Core.Entities;
 using ramii.dev.Core.Interfaces;
+using ramii.dev.Data;
 using ramii.dev.Security;
 using ramii.dev.Services;
 
 var services = new ServiceCollection();
 services.AddLogging();
+
+// Registrera test AppDbContext-factory (in-memory database)
+services.AddDbContextFactory<AppDbContext>(options =>
+    options.UseInMemoryDatabase("test-db"));
+
 services.AddScoped<TestAuthenticationState>();
 services.AddScoped<AuthenticationStateProvider>(provider =>
     provider.GetRequiredService<TestAuthenticationState>());
@@ -38,7 +45,8 @@ Check(contacts.Reply == (42, "Svar", true), "svaret sparas som adminsvar");
 Check((await backstage.GetAdminsAsync()).Single().Username == "admin", "adminlistans resultat");
 Check(await backstage.CreateAdminAsync("nyadmin", "ny@example.test", "test-password"),
     "resultat från adminskapande");
-Check(contacts.Calls == 2 && admins.Calls == 2, "alla fyra operationer når lagringen");
+// ReplyAsync anropar nu: GetThreadByIdAsync (1) + AddReplyAndQueueAsync (1) = 2 nya anrop, plus GetThreadsAsync (1) = 3 totalt
+Check(contacts.Calls == 3 && admins.Calls == 2, "alla operationer når lagringen");
 Console.WriteLine("OK: Admin får utföra alla fyra operationer.");
 
 identity.SetUser(new ClaimsPrincipal(new ClaimsIdentity()));
@@ -100,21 +108,47 @@ sealed class ContactStore : IContactService
     public Task<List<ContactThread>> GetAllThreadsAsync()
     {
         Calls++;
-        return Task.FromResult<List<ContactThread>>([new ContactThread { Id = 42 }]);
+        return Task.FromResult<List<ContactThread>>([new ContactThread { Id = 42, VisitorEmail = "visitor@example.test" }]);
     }
 
     public Task<ThreadMessage> AddReplyAsync(int threadId, string replyBody, bool isFromAdmin)
     {
         Calls++;
         Reply = (threadId, replyBody, isFromAdmin);
-        return Task.FromResult(new ThreadMessage());
+        return Task.FromResult(new ThreadMessage { Id = 100, MessageId = "<test@ramii.dev>" });
+    }
+
+    public Task<ContactThread?> GetThreadByIdAsync(int id)
+    {
+        Calls++;
+        return Task.FromResult<ContactThread?>(new ContactThread { Id = 42, VisitorEmail = "visitor@example.test" });
     }
 
     public Task<ContactThread> CreateThreadAsync(string name, string email, string subject, string message) =>
         throw new NotSupportedException();
 
-    public Task<ContactThread?> GetThreadByIdAsync(int id) => throw new NotSupportedException();
+    public async Task<(ThreadMessage Message, OutboxItem Outbox)> AddReplyAndQueueAsync(int threadId, string replyBody, string recipientEmail)
+    {
+        Calls++;
+        Reply = (threadId, replyBody, true);
+        var message = new ThreadMessage { Id = 100, MessageId = "<test@ramii.dev>" };
+        var outbox = new OutboxItem { Id = 1, Status = OutboxItemStatus.Pending, ReservationToken = null };
+        return (message, outbox);
+    }
+
+    public Task UpdateOutboxItemStatusAsync(int outboxItemId, OutboxItemStatus status, string reservationToken, string? failureReason = null) =>
+        Task.CompletedTask;
+
+    public Task<OutboxItem?> ReserveForProcessingAsync(string processingBy, int maxLockDurationSeconds = 300)
+    {
+        var outbox = new OutboxItem { Id = 1, Status = OutboxItemStatus.Pending, ReservationToken = Guid.NewGuid().ToString() };
+        return Task.FromResult<OutboxItem?>(outbox);
+    }
+
+    public Task ReleaseProcessingReservationAsync(int outboxItemId, string reservationToken) =>
+        Task.CompletedTask;
 }
+
 
 sealed class AdminStore : IAuthService
 {

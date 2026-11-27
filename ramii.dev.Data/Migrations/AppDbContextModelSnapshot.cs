@@ -16,7 +16,7 @@ partial class AppDbContextModelSnapshot : ModelSnapshot
     // If you encounter a merge conflict in the line below, it means you need to
     // discard one of the migration branches and recreate its migrations on top of
     // the other branch. See https://aka.ms/efcore-docs-migrations-conflicts for more info.
-    public override string LastMigrationId => "20261124182606_AddEmailAndResetToAdminUser";
+    public override string LastMigrationId => "20261127185000_AddReservationTokenAndUniqueThreadMessageIdIndex";
 
     protected override void BuildModel(ModelBuilder modelBuilder)
     {
@@ -166,6 +166,77 @@ partial class AppDbContextModelSnapshot : ModelSnapshot
                 b.ToTable("LabProjects");
             });
 
+        modelBuilder.Entity("ramii.dev.Core.Entities.OutboxItem", b =>
+            {
+                var id = b.Property<int>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("int");
+
+                SqlServerPropertyBuilderExtensions.UseIdentityColumn(id);
+
+                b.Property<int>("AttemptCount")
+                    .HasColumnType("int");
+
+                b.Property<DateTime>("CreatedAt")
+                    .HasColumnType("datetime2");
+
+                b.Property<string>("FailureReason")
+                    .HasMaxLength(500)
+                    .HasColumnType("nvarchar(500)");
+
+                b.Property<string>("MessageId")
+                    .IsRequired()
+                    .HasMaxLength(255)
+                    .HasColumnType("nvarchar(255)");
+
+                b.Property<DateTime?>("NextRetryAt")
+                    .HasColumnType("datetime2");
+
+                b.Property<string>("ProcessingBy")
+                    .HasMaxLength(100)
+                    .HasColumnType("nvarchar(100)");
+
+                b.Property<DateTime?>("ProcessingStartedAt")
+                    .HasColumnType("datetime2");
+
+                b.Property<string>("RecipientEmail")
+                    .IsRequired()
+                    .HasMaxLength(255)
+                    .HasColumnType("nvarchar(255)");
+
+                b.Property<string>("ReservationToken")
+                    .HasMaxLength(36)
+                    .HasColumnType("nvarchar(36)");
+
+                b.Property<DateTime?>("SentAt")
+                    .HasColumnType("datetime2");
+
+                b.Property<int>("Status")
+                    .HasColumnType("int");
+
+                b.Property<int>("ThreadMessageId")
+                    .HasColumnType("int");
+
+                b.Property<DateTime?>("UpdatedAt")
+                    .HasColumnType("datetime2");
+
+                b.HasKey("Id");
+
+                b.HasIndex("MessageId")
+                    .IsUnique();
+
+                b.HasIndex("Status");
+
+                b.HasIndex("ThreadMessageId")
+                    .IsUnique();
+
+                b.HasIndex("Status", "NextRetryAt");
+
+                b.HasIndex("Status", "ProcessingBy", "ProcessingStartedAt");
+
+                b.ToTable("OutboxItems");
+            });
+
         modelBuilder.Entity("ramii.dev.Core.Entities.ThreadMessage", b =>
             {
                 var id = b.Property<int>("Id")
@@ -179,6 +250,10 @@ partial class AppDbContextModelSnapshot : ModelSnapshot
                     .HasMaxLength(4000)
                     .HasColumnType("nvarchar(4000)");
 
+                b.Property<string>("InReplyToMessageId")
+                    .HasMaxLength(255)
+                    .HasColumnType("nvarchar(255)");
+
                 b.Property<string>("IpAddress")
                     .HasMaxLength(50)
                     .HasColumnType("nvarchar(50)");
@@ -186,8 +261,19 @@ partial class AppDbContextModelSnapshot : ModelSnapshot
                 b.Property<bool>("IsFromAdmin")
                     .HasColumnType("bit");
 
+                b.Property<string>("MessageId")
+                    .HasMaxLength(255)
+                    .HasColumnType("nvarchar(255)");
+
+                b.Property<string>("References")
+                    .HasMaxLength(2000)
+                    .HasColumnType("nvarchar(2000)");
+
                 b.Property<DateTime>("SentAt")
                     .HasColumnType("datetime2");
+
+                b.Property<int>("Source")
+                    .HasColumnType("int");
 
                 b.Property<int>("ThreadId")
                     .HasColumnType("int");
@@ -198,11 +284,28 @@ partial class AppDbContextModelSnapshot : ModelSnapshot
 
                 b.HasKey("Id");
 
+                b.HasIndex("MessageId")
+                    .IsUnique()
+                    .HasFilter("[MessageId] IS NOT NULL");
+
                 b.HasIndex("SentAt");
+
+                b.HasIndex("Source");
 
                 b.HasIndex("ThreadId");
 
                 b.ToTable("Messages");
+            });
+
+        modelBuilder.Entity("ramii.dev.Core.Entities.OutboxItem", b =>
+            {
+                b.HasOne("ramii.dev.Core.Entities.ThreadMessage", "ThreadMessage")
+                    .WithMany()
+                    .HasForeignKey("ThreadMessageId")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired();
+
+                b.Navigation("ThreadMessage");
             });
 
         modelBuilder.Entity("ramii.dev.Core.Entities.ThreadMessage", b =>
