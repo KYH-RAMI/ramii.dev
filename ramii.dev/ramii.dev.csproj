@@ -4,6 +4,7 @@
 		<TargetFramework>net11.0</TargetFramework>
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>
+		<RequiresAspNetWebAssets>true</RequiresAspNetWebAssets>
 		<BlazorDisableThrowNavigationException>true</BlazorDisableThrowNavigationException>
 		<UserSecretsId>cb0e879c-80c2-4bff-99fc-edb90d1138c8</UserSecretsId>
 		<DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
