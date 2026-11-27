@@ -1,0 +1,57 @@
+@using ramii.dev.Core.Entities
+@using ramii.dev.Services
+
+<div class="space-y-2 text-xs">
+    @if (Messages == null || !Messages.Any())
+    {
+        <p class="text-slate-500">Inga meddelanden</p>
+    }
+    else
+    {
+        @foreach (var msg in Messages.OrderBy(m => m.SentAt))
+        {
+            <div class="p-3 rounded border @GetMessageStyle(msg)">
+                <div class="flex items-center justify-between mb-1.5 text-[11px]">
+                    <span class="font-bold @(msg.IsFromAdmin ? "text-amber-400" : "text-emerald-400")">
+                        @(msg.IsFromAdmin ? ">_ Rami Issa (Admin)" : VisitorName)
+                    </span>
+                    <span class="text-[10px] text-slate-500 flex items-center gap-2">
+                        @msg.SentAt.ToLocalTime().ToString("HH:mm:ss")
+                        @if (msg.Source == MessageSource.EmailIncoming)
+                        {
+                            <span class="text-[9px] px-1 py-0.5 rounded bg-sky-500/20 text-sky-300">📧 E-post</span>
+                        }
+                        else if (msg.Source == MessageSource.AdminReply)
+                        {
+                            <span class="text-[9px] px-1 py-0.5 rounded bg-purple-500/20 text-purple-300">📤 Svar</span>
+                        }
+                        else
+                        {
+                            <span class="text-[9px] px-1 py-0.5 rounded bg-slate-700/20 text-slate-400">💬 Webb</span>
+                        }
+                    </span>
+                </div>
+                <p class="text-slate-200 whitespace-pre-wrap leading-relaxed">@msg.Body</p>
+
+                @if (!string.IsNullOrWhiteSpace(msg.MessageId))
+                {
+                    <div class="text-[9px] text-slate-500 mt-2 font-mono truncate">
+                        Message-ID: @msg.MessageId
+                    </div>
+                }
+            </div>
+        }
+    }
+</div>
+
+@code {
+    [Parameter]
+    public List<BackstageMessage>? Messages { get; set; }
+
+    [Parameter]
+    public string? VisitorName { get; set; }
+
+    private string GetMessageStyle(BackstageMessage msg) => msg.IsFromAdmin 
+        ? "bg-amber-500/10 border-amber-500/30 ml-6" 
+        : "bg-[#0e1320] border-white/5 mr-6";
+}

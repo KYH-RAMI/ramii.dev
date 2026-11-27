@@ -1,0 +1,146 @@
+﻿@using Microsoft.JSInterop
+@implements IAsyncDisposable
+@inject IJSRuntime JS
+
+<div hidden="@(_remainingSeconds > 0)">
+    @ReadyContent
+</div>
+
+@if (_remainingSeconds > 0)
+{
+    @if (_sent)
+    {
+        @SuccessContent
+    }
+    else
+    {
+        <div class="rounded border border-amber-500/30
+            bg-amber-500/5 p-4 text-sm text-amber-400">
+            Vänta innan du skickar nästa meddelande.
+        </div>
+    }
+
+    <div class="mt-4 space-y-3 font-mono">
+        <div class="flex items-center justify-between gap-4">
+            <span class="text-xs text-slate-400">
+                Nästa meddelande tillgängligt om
+            </span>
+
+            <span class="text-lg font-bold tabular-nums text-amber-accent">
+                @TimeSpan.FromSeconds(_remainingSeconds).ToString(@"mm\:ss")
+            </span>
+        </div>
+
+        <progress value="@_remainingSeconds"
+                  max="120"
+                  aria-label="Återstående väntetid"
+                  class="progress progress-warning w-full">
+        </progress>
+    </div>
+}
+
+@code {
+    [Parameter, EditorRequired]
+    public RenderFragment? ReadyContent { get; set; }
+
+    [Parameter, EditorRequired]
+    public RenderFragment? SuccessContent { get; set; }
+
+    private readonly CancellationTokenSource _cts = new();
+
+    private Task? _timerTask;
+    private long _deadline;
+    private int _remainingSeconds;
+    private bool _sent;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender)
+            return;
+
+        try
+        {
+            await using var module =
+                await JS.InvokeAsync<IJSObjectReference>(
+                    "import", "./js/contact-cooldown.js");
+
+            var cookie = await module.InvokeAsync<string?>(
+                "getCooldown");
+
+            if (string.IsNullOrWhiteSpace(cookie))
+                return;
+
+            var parts = cookie.Split(':');
+
+            if (parts.Length != 2 ||
+                !long.TryParse(parts[1], out _deadline))
+                return;
+
+            if (parts[0] is not ("sent" or "wait"))
+                return;
+
+            var now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+
+            if (_deadline <= now || _deadline > now + 120_000)
+                return;
+
+            _sent = parts[0] == "sent";
+
+            UpdateRemainingTime();
+
+            StateHasChanged();
+
+            _timerTask = RunTimerAsync(_cts.Token);
+        }
+        catch (JSDisconnectedException)
+        {
+            // Blazor-anslutningen har avslutats.
+        }
+    }
+
+    private void UpdateRemainingTime()
+    {
+        var now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+
+        _remainingSeconds = (int)Math.Clamp(
+            Math.Ceiling((_deadline - now) / 1000d),
+            0,
+            120);
+    }
+
+    private async Task RunTimerAsync(
+        CancellationToken cancellationToken)
+    {
+        using var timer = new PeriodicTimer(
+            TimeSpan.FromSeconds(1));
+
+        try
+        {
+            while (await timer.WaitForNextTickAsync(cancellationToken))
+            {
+                await InvokeAsync(() =>
+                {
+                    UpdateRemainingTime();
+                    StateHasChanged();
+                });
+
+                if (_remainingSeconds == 0)
+                    break;
+            }
+        }
+        catch (OperationCanceledException)
+        {
+            // Komponenten har avslutats.
+        }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        _cts.Cancel();
+
+        if (_timerTask is not null)
+            await _timerTask;
+
+        _cts.Dispose();
+    }
+}

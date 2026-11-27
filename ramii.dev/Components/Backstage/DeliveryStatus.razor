@@ -1,0 +1,63 @@
+@using ramii.dev.Core.Entities
+
+<div class="space-y-1 text-xs">
+    <div class="text-slate-400 mb-2">Utskickade meddelanden:</div>
+
+    @if (OutboxItems == null || !OutboxItems.Any())
+    {
+        <p class="text-slate-500">Inga utgående meddelanden</p>
+    }
+    else
+    {
+        @foreach (var item in OutboxItems.OrderBy(o => o.CreatedAt))
+        {
+            <div class="p-2 rounded border border-white/5 bg-[#0e1320] text-slate-300 text-[10px]">
+                <div class="flex items-center justify-between">
+                    <span>Till: <strong>@item.RecipientEmail</strong></span>
+                    <span class="@GetStatusColor(item.Status)">@GetStatusLabel(item.Status)</span>
+                </div>
+                <div class="text-slate-500 mt-1">
+                    Försök: @item.AttemptCount | 
+                    Skapat: @item.CreatedAt.ToLocalTime().ToString("yyyy-MM-dd HH:mm")
+                </div>
+
+                @if (!string.IsNullOrWhiteSpace(item.FailureReason))
+                {
+                    <div class="text-red-400/70 mt-1 font-mono text-[9px] truncate">
+                        ⚠️ @item.FailureReason
+                    </div>
+                }
+
+                @if (!string.IsNullOrWhiteSpace(item.MessageId))
+                {
+                    <div class="text-slate-600 mt-1 font-mono text-[9px] truncate">
+                        Message-ID: @item.MessageId
+                    </div>
+                }
+            </div>
+        }
+    }
+</div>
+
+@code {
+    [Parameter]
+    public List<OutboxItem>? OutboxItems { get; set; }
+
+    private string GetStatusColor(OutboxItemStatus status) => status switch
+    {
+        OutboxItemStatus.Pending => "text-amber-400",
+        OutboxItemStatus.Sent => "text-emerald-400",
+        OutboxItemStatus.Failed => "text-red-400",
+        OutboxItemStatus.Uncertain => "text-orange-400",
+        _ => "text-slate-400"
+    };
+
+    private string GetStatusLabel(OutboxItemStatus status) => status switch
+    {
+        OutboxItemStatus.Pending => "⏳ Väntande",
+        OutboxItemStatus.Sent => "✓ Skickad",
+        OutboxItemStatus.Failed => "✗ Fel",
+        OutboxItemStatus.Uncertain => "? Osäker",
+        _ => "? Okänd"
+    };
+}

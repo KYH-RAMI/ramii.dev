@@ -8,9 +8,10 @@ public class AppDbContext : DbContext
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
     {
     }
-    
+
     public DbSet<ContactThread> Threads => Set<ContactThread>();
     public DbSet<ThreadMessage> Messages => Set<ThreadMessage>();
+    public DbSet<OutboxItem> OutboxItems => Set<OutboxItem>();
 
     public DbSet<LabProject> LabProjects => Set<LabProject>();
     public DbSet<AdminUser> AdminUsers => Set<AdminUser>();
@@ -50,8 +51,36 @@ public class AppDbContext : DbContext
             entity.Property(e => e.Body).HasMaxLength(4000).IsRequired();
             entity.Property(e => e.IpAddress).HasMaxLength(50);
             entity.Property(e => e.UserAgent).HasMaxLength(500);
+            entity.Property(e => e.MessageId).HasMaxLength(255);
+            entity.Property(e => e.InReplyToMessageId).HasMaxLength(255);
+            entity.Property(e => e.References).HasMaxLength(2000);
 
             entity.HasIndex(e => e.SentAt);
+            entity.HasIndex(e => e.MessageId).IsUnique();
+            entity.HasIndex(e => e.Source);
+        });
+
+        modelBuilder.Entity<OutboxItem>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.RecipientEmail).HasMaxLength(255).IsRequired();
+            entity.Property(e => e.MessageId).HasMaxLength(255).IsRequired();
+            entity.Property(e => e.FailureReason).HasMaxLength(500);
+            entity.Property(e => e.ProcessingBy).HasMaxLength(100);
+            entity.Property(e => e.ReservationToken).HasMaxLength(36);
+
+            // 1 meddelande kan ha många outbox-poster
+            entity.HasOne(e => e.ThreadMessage)
+                  .WithMany()
+                  .HasForeignKey(e => e.ThreadMessageId)
+                  .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasIndex(e => e.Status);
+            entity.HasIndex(e => new { e.Status, e.NextRetryAt });
+            entity.HasIndex(e => e.MessageId).IsUnique();
+            entity.HasIndex(e => e.ThreadMessageId).IsUnique();
+            // Index för worker-reservation: hitta poster som inte är låsta eller har timeout
+            entity.HasIndex(e => new { e.Status, e.ProcessingBy, e.ProcessingStartedAt });
         });
 
         // Konfiguration för LabProject

@@ -1,11 +1,11 @@
-using System.ComponentModel.DataAnnotations;
-using System.Globalization;
-using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Net.Http.Headers;
 using ramii.dev.Core.Interfaces;
-
+using ramii.dev.Security;
+using System.ComponentModel.DataAnnotations;
+using System.Globalization;
+using System.Threading.RateLimiting;
 namespace ramii.dev.Services;
 
 public static class ContactEndpoint
@@ -17,6 +17,7 @@ public static class ContactEndpoint
 
     public static IServiceCollection AddContactProtection(this IServiceCollection services)
     {
+        services.AddSingleton<ContactCooldown>();
         services.AddAntiforgery();
         services.AddRateLimiter(options =>
         {
@@ -25,16 +26,31 @@ public static class ContactEndpoint
                 ContactLimit(GetNetworkKey, permitLimit: 3, TimeSpan.FromMinutes(10)),
                 ContactLimit(_ => "contact", permitLimit: 30, TimeSpan.FromMinutes(10)));
 
+            options.AddPolicy("login", context =>
+            RateLimitPartition.GetSlidingWindowLimiter(
+                GetNetworkKey(context), _ => new()
+                {
+                    PermitLimit = 5,
+                    Window = TimeSpan.FromMinutes(1),
+                    SegmentsPerWindow = 6,
+                    QueueLimit = 0
+                }));
+
             options.OnRejected = async (context, cancellationToken) =>
             {
                 if (context.Lease.TryGetMetadata(MetadataName.RetryAfter, out var retryAfter))
                 {
                     context.HttpContext.Response.Headers.RetryAfter =
-                        Math.Ceiling(retryAfter.TotalSeconds).ToString(CultureInfo.InvariantCulture);
+                            Math.Ceiling(retryAfter.TotalSeconds).ToString(CultureInfo.InvariantCulture);
                 }
 
+                var message = context.HttpContext.Request.Path
+                .StartsWithSegments("/api/auth/login")
+             ? "För många inloggningsförsök. Vänta en stund och försök igen."
+             : "För många kontaktförsök. Vänta en stund och försök igen.";
+
                 await context.HttpContext.Response.WriteAsync(
-                    "För många kontaktförsök. Vänta en stund och försök igen.", cancellationToken);
+                    message, cancellationToken);
             };
         });
 
@@ -74,9 +90,11 @@ public static class ContactEndpoint
             ? Convert.ToHexString(address.GetAddressBytes().AsSpan(0, 8))
             : address?.ToString() ?? "unknown";
     }
-
     private static async Task<IResult> SubmitAsync(
-        HttpContext context, IAntiforgery antiforgery, IContactService contactService)
+        HttpContext context,
+        IAntiforgery antiforgery,
+        IContactService contactService,
+        ContactCooldown cooldown)
     {
         var request = context.Request;
         if (!MediaTypeHeaderValue.TryParse(request.ContentType, out var contentType) ||
@@ -132,9 +150,60 @@ public static class ContactEndpoint
             return Results.LocalRedirect("/?kontakt=invalid#kontakt");
         }
 
-        await contactService.CreateThreadAsync(
-            submission.Name, submission.Email, submission.Subject, submission.Message);
-        return Results.LocalRedirect("/?kontakt=sent#kontakt");
+        var networkKey = GetNetworkKey(context);
+
+        if (!cooldown.TryBegin(networkKey, out var retryAt))
+        {
+            if (retryAt is { } deadline)
+            {
+                SetCooldownCookie(context, deadline, "wait");
+
+                return Results.LocalRedirect(
+                    "/?kontakt=cooldown#kontakt");
+            }
+
+            return Results.Text(
+                "Ett kontaktförsök behandlas redan.",
+                statusCode: StatusCodes.Status429TooManyRequests);
+        }
+
+        try
+        {
+            await contactService.CreateThreadAsync(
+                submission.Name,
+                submission.Email,
+                submission.Subject,
+                submission.Message);
+
+            var until = cooldown.Complete(networkKey);
+
+            SetCooldownCookie(context, until, "sent");
+
+            return Results.LocalRedirect(
+                "/?kontakt=sent#kontakt");
+        }
+        finally
+        {
+            cooldown.Cancel(networkKey);
+        }
+
+    }
+    private static void SetCooldownCookie(
+    HttpContext context,
+    DateTimeOffset until,
+    string status)
+    {
+        context.Response.Cookies.Append(
+            "ramii_contact_cooldown",
+            $"{status}:{until.ToUnixTimeMilliseconds()}",
+            new CookieOptions
+            {
+                Secure = true,
+                HttpOnly = false,
+                SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Lax,
+                Expires = until,
+                Path = "/"
+            });
     }
 
     private sealed class ContactFormEndpoint { }

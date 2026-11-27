@@ -26,6 +26,7 @@
 
         <!-- Formulär som postar direkt till vår säkra Cookie-endpoint -->
         <form method="post" action="/api/auth/login" class="space-y-4">
+            <AntiforgeryToken />
             <div>
                 <label class="block text-xs text-slate-400 mb-1">>_ Användarnamn</label>
                 <input type="text" name="username" required autocomplete="username"
