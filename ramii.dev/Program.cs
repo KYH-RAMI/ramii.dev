@@ -11,7 +11,17 @@ using ramii.dev.Data.Services;
 using ramii.dev.Security;
 using ramii.dev.Services;
 using System.Security.Claims;
+
+
 var builder = WebApplication.CreateBuilder(args);
+
+// Läs Docker Secrets i produktionsmiljön
+if (builder.Environment.IsProduction())
+{
+    builder.Configuration.AddKeyPerFile(
+        directoryPath: "/run/secrets",
+        optional: true);
+}
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
